@@ -1,6 +1,6 @@
 # Whisker Lake 🎣🐱
 
-A small fishing game you play in the browser. Pick one of five clan cats, row your boat across the lake and try to find all 15 kinds of sea life, without hooking too much trash.
+A small fishing game you play in the browser. Pick one of five clan cats, row your boat across the lake and try to find all 19 kinds of sea life, without hooking too much trash, and without getting eaten by a shark.
 
 **▶ Play it here: https://cmku-dft.github.io/fishing-cat-game/**
 
@@ -22,6 +22,23 @@ When a fish bites, it switches between two moods:
 Pull the fish up to the surface to catch it. The fish log keeps track of every kind you've found.
 
 Clams, oysters, jellyfish and trash don't fight. They get stuck on your hook as soon as it touches them.
+
+## Sharks!
+
+Sharks swim in the lake and eat smaller fish. They will even steal the fish on your line if you're too slow.
+
+Every so often a shark comes for your boat. A red glow shows which side it's coming from:
+
+- **Row away** as fast as you can. If you stay far enough ahead for long enough, it gives up.
+- **Or row into the shallows** near either shore. Sharks can't swim in shallow water.
+
+If the shark reaches your boat, the trip is over. You can try again with the same cat or pick another one.
+
+You can also catch sharks. They are worth 300 points but pull very hard.
+
+## Sea turtles
+
+Three kinds of sea turtle swim in the lake. They hunt jellyfish and eat them. You can catch turtles too.
 
 ## The cats
 
@@ -46,6 +63,9 @@ Every cat has a fishing talent. Your cat stands up in the boat with the rod in i
 | Jellyfish | 2–18 m (it stings!) | 25 |
 | Mackerel | 4–13 m | 30 |
 | Clam | Lake floor | 35 |
+| Hatchling Turtle (small) | 1–10 m | 45 |
+| Green Sea Turtle (medium) | 2–17 m | 90 |
+| Leatherback Turtle (large) | 4–23 m | 180 |
 | Pufferfish | 6–14 m | 40 |
 | Salmon | 8–17 m | 60 |
 | Oyster | Deep lake floor | 70 (+250 if it has a pearl) |
@@ -53,6 +73,7 @@ Every cat has a fishing talent. Your cat stands up in the boat with the rod in i
 | Lobster | Deep lake floor (crawls and fights) | 120 |
 | Swordfish | 15–24 m | 150 |
 | Anglerfish | 22–28 m | 200 |
+| Shark | 3–26 m | 300 |
 | Golden Koi | Anywhere (rare!) | 500 |
 
 ## Trash

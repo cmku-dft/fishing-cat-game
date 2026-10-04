@@ -111,7 +111,7 @@ button:focus-visible{outline:3px solid #ffd76a;outline-offset:2px}
     <div class="bar"><i id="tensionFill"></i></div>
   </div>
 
-  <div id="help" hidden><kbd>←</kbd><kbd>→</kbd> row the boat · <kbd>↓</kbd> drop line · <kbd>↑</kbd> or <kbd>Space</kbd> reel in · reel when the fish is tired, wait when it thrashes · steer clear of trash</div>
+  <div id="help" hidden><kbd>←</kbd><kbd>→</kbd> row the boat · <kbd>↓</kbd> drop line · <kbd>↑</kbd> or <kbd>Space</kbd> reel in · reel when the fish is tired, wait when it thrashes · steer clear of trash · shark coming? row away or into the shallows</div>
 
   <div id="touch" hidden>
     <div class="grp"><button data-k="left" aria-label="Row left">◀</button><button data-k="right" aria-label="Row right">▶</button></div>
@@ -124,11 +124,22 @@ button:focus-visible{outline:3px solid #ffd76a;outline-offset:2px}
   <div id="select" class="screen">
     <div class="sheet plate">
       <h1>Whisker Lake</h1>
-      <p class="lede">Pick a cat, row out onto the lake and drop your line. Fish, shrimp, jellyfish and lobsters live at different depths, and clams and oysters sit on the lake floor. The rarest catches hide deep down where it gets dark. Watch out for trash: it costs you points.</p>
+      <p class="lede">Pick a cat, row out onto the lake and drop your line. Fish, shrimp, jellyfish, sea turtles and lobsters live at different depths, and clams and oysters sit on the lake floor. The rarest catches hide deep down where it gets dark. Trash costs you points. Sharks eat fish, and sometimes one comes for your boat: row away fast or hide in the shallow water near the shore, or the trip is over. You can catch sharks too!</p>
       <div class="cats" id="cats"></div>
       <div class="row">
         <p id="pickNote">Each cat has a fishing talent. Choose one to set sail.</p>
         <button class="go" id="startBtn">Set sail</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="over" class="screen" hidden>
+    <div class="sheet plate" style="width:min(520px,100%);text-align:center">
+      <h2 style="font-size:40px">Chomp!</h2>
+      <p class="lede" id="overText" style="margin-inline:auto"></p>
+      <div class="row" style="justify-content:center">
+        <button class="go" id="againBtn">Try again</button>
+        <button class="go" id="overCatBtn" style="background:var(--ink-soft)">Pick a cat</button>
       </div>
     </div>
   </div>
@@ -175,6 +186,10 @@ const FISH = [
   {id:'jelly',    name:'Jellyfish',   min:80,  max:900,  len:40,  speed:12,  pts:25,  count:5,  move:'drift', inert:true, snag:24},
   {id:'clam',     name:'Clam',        len:26, pts:35,  count:9, move:'static', inert:true, snag:20},
   {id:'oyster',   name:'Oyster',      len:30, pts:70,  count:5, move:'static', inert:true, snag:20, minBed:550},
+  {id:'shark',    name:'Shark',       min:140, max:1300, len:132, speed:80,  pts:300, count:2,  shark:true, pull:210, thrash:[1.0,1.6],tired:[.6,1.0]},
+  {id:'turtle1',  name:'Hatchling Turtle', min:40,  max:520,  len:36,  speed:30, pts:45,  count:2, turtle:true, pull:45,  thrash:[.4,.8], tired:[1.0,1.5]},
+  {id:'turtle2',  name:'Green Sea Turtle', min:100, max:850,  len:64,  speed:36, pts:90,  count:2, turtle:true, pull:95,  thrash:[.6,1.0],tired:[.9,1.3]},
+  {id:'turtle3',  name:'Leatherback Turtle', min:200, max:1150, len:104, speed:42, pts:180, count:1, turtle:true, pull:150, thrash:[.8,1.3],tired:[.7,1.2]},
   {id:'lobster',  name:'Lobster',     len:58, speed:22, pts:120, count:3, move:'crawl', minBed:650, pull:100, thrash:[.7,1.2], tired:[.8,1.3]},
   // trash: snags the hook and costs points
   {id:'boot',     name:'Old Boot',       len:34, pts:-20, count:3, move:'static', trash:true, inert:true, snag:22},
@@ -205,6 +220,8 @@ let mods = {};
 const boat={x:700,vx:0,facing:-1,y:0,tilt:0};
 const hook={x:580,y:0,L:0,offset:0,prevY:0};
 let fishes=[], parts=[], hooked=null, approacher=null, tension=0, phase='tired', phaseT=0, koiTimer=0, popT=0;
+// shark attack: the shark hunting the boat (or null), seconds until the next attack, time the boat was bitten
+let attack=null, attackT=35, overT=0, alarmT=0;
 const cam={x:0,y:-200};
 const keys={left:false,right:false,up:false,down:false};
 let t=0, viewW=800, viewH=680, scale=1, dpr=1;
@@ -233,6 +250,10 @@ const sfx={
   trash(){tone(220,.18,'square',.06,-80);tone(160,.3,'square',.06,-60,.16)},
   zap(){for(let i=0;i<5;i++) tone(900+Math.random()*600,.05,'sawtooth',.05,0,i*.05)},
   rare(){[523,659,784,1047,1319,1568].forEach((f,i)=>tone(f,.22,'triangle',.12,0,i*.07))},
+  chomp(){tone(140,.12,'sawtooth',.1,-70);tone(95,.18,'square',.08,-40,.08)},
+  alarm(){tone(196,.18,'square',.05);tone(233,.18,'square',.05,0,.2)},
+  over(){[392,330,262,196].forEach((f,i)=>tone(f,.28,'triangle',.12,0,i*.18))},
+  phew(){[440,554,659].forEach((f,i)=>tone(f,.14,'triangle',.1,0,i*.07))},
 };
 
 // ---------- creatures ----------
@@ -275,12 +296,27 @@ function updateFish(dt){
   koiTimer-=dt;
   if(koiTimer<=0){ koiTimer=1; if(!fishes.some(f=>f.def.rare) && Math.random()<0.035*(mods.rare||1)) spawn(FISH_BY_ID.koi,true); }
   for(let i=fishes.length-1;i>=0;i--){
-    const f=fishes[i]; if(f===hooked) continue;
+    const f=fishes[i]; if(f===hooked || f.dead) continue;
     const def=f.def, len=def.len*f.sz, mv=def.move||'swim';
     if(f.cool>0) f.cool-=dt;
     f.life-=dt;
     if(f.life<0 && f!==approacher && (f.x<cam.x-200||f.x>cam.x+viewW+200)){ fishes.splice(i,1); continue; }
     if(mv==='static') continue;
+    if(f.state==='hunt'){ updateHunt(f,dt,len); continue; }
+    if(f.state==='chase'){
+      // sharks chase small fish, turtles chase jellyfish
+      const p=f.prey, ok=p && !p.dead && fishes.includes(p) && (p!==hooked || def.shark);
+      f.chaseT-=dt;
+      if(!ok || f.chaseT<0){ f.state='swim'; f.prey=null; f.cool=4; f.baseY=clamp(f.y,def.min,def.max); }
+      else{
+        const mx=f.x+f.dir*len*.42, dx=p.x-mx, dy=p.y-f.y, d=Math.hypot(dx,dy)||1;
+        if(Math.abs(dx)>6) f.dir=dx>0?1:-1;
+        const sp=f.speed*(def.shark?2.2:1.7); f.x+=dx/d*sp*dt; f.y+=dy/d*sp*dt;
+        if(def.shark && p.state==='swim' && d<150){ p.state='flee'; p.dir=p.x>f.x?1:-1; p.fleeT=1.4; p.baseY=clamp(p.y,p.def.min??p.y,p.def.max??p.y); }
+        if(d<len*.12+p.def.len*p.sz*.35) eat(f,p);
+      }
+      continue;
+    }
     if(f.state==='approach'){
       const mx=f.x+f.dir*len*.5, dx=hook.x-mx, dy=hook.y-f.y, d=Math.hypot(dx,dy)||1;
       const tooHigh = mv==='crawl' && hook.y < bed(f.x)-110;
@@ -314,9 +350,19 @@ function updateFish(dt){
       f.y+=(f.baseY+Math.sin(t*1.3+f.ph)*8-f.y)*Math.min(1,dt*3);
     }
     if(f.x<60) f.dir=1; if(f.x>WORLD_W-60) f.dir=-1;
+    // hungry hunters look around for food
+    if((def.shark||def.turtle) && f.state==='swim' && f.cool<=0 && Math.random()<dt*1.2){
+      const R=def.shark?180:150;
+      for(const p of fishes){
+        if(p===f || p.dead || p.state==='approach') continue;
+        const food = def.shark ? (!p.def.inert && !p.def.shark && !p.def.turtle && p.def.len*p.sz<76) : (p.def.id==='jelly' && p!==hooked);
+        if(food && Math.hypot(p.x-f.x,p.y-f.y)<R){ f.state='chase'; f.prey=p; f.chaseT=5; break; }
+      }
+    }
     if(mv!=='drift' && Math.random()<dt*.08) parts.push({x:f.x+f.dir*len*.5,y:f.y-3,vx:0,vy:-30,life:2.5,max:2.5,r:rand(1.5,3),k:'b'});
   }
-  if(hooked || hook.y<=10) return;
+  if(fishes.some(f=>f.dead)) fishes=fishes.filter(f=>!f.dead);
+  if(S.mode!=='play' || hooked || hook.y<=10) return;
   // snagging shellfish, jellyfish and trash
   for(const f of fishes){
     if(!f.def.snag || f.state!=='swim' || f.cool>0) continue;
@@ -332,6 +378,74 @@ function updateFish(dt){
       if(Math.hypot(hook.x-mx,hook.y-f.y)<noticeR && Math.random()<dt*1.6){ f.state='approach'; approacher=f; break; }
     }
   }
+}
+// a shark or turtle eats its prey (a shark can even take the fish on your line)
+function eat(f,p){
+  p.dead=true;
+  if(p===approacher) approacher=null;
+  if(p===hooked){ hooked=null; tension=0; hook.offset=0; $('fight').hidden=true; setMood('sad',2.4); toast('A shark ate your '+p.def.name+'!',2); }
+  for(let k=0;k<10;k++) parts.push({x:p.x+rand(-8,8),y:p.y+rand(-8,8),vx:0,vy:rand(-50,-20),life:rand(1,2),max:2,r:rand(1.5,3.5),k:'b'});
+  if(p.x>cam.x-50 && p.x<cam.x+viewW+50) sfx.chomp();
+  f.state='swim'; f.prey=null; f.cool=f.def.shark?rand(8,14):rand(5,9); f.baseY=clamp(f.y,f.def.min,f.def.max);
+}
+// every so often a shark comes for the boat. It arrives from the open-water side, so you can always row
+// away from it or into the shallows near the shore, where it can't follow.
+const SHALLOW=340;   // a shark can't swim where the lake floor is shallower than this (world px)
+function maybeStartAttack(dt){
+  if(attack || S.mode!=='play') return;
+  attackT-=dt; if(attackT>0) return;
+  if(hooked && hooked.def.shark){ attackT=8; return; }
+  attackT=rand(40,70);
+  const side = boat.x<WORLD_W/2 ? 1 : -1;     // the side with more open water
+  let s=fishes.find(f=>f.def.shark && f!==hooked && !f.dead && f.state!=='hooked' && Math.sign(f.x-boat.x)===side && Math.abs(f.x-boat.x)>450 && Math.abs(f.x-boat.x)<1000 && f.y<450);
+  if(!s){
+    const x=clamp(boat.x+side*rand(600,680),80,WORLD_W-80);
+    const n=fishes.length; spawnAt(FISH_BY_ID.shark,x,rand(180,340)); s=fishes[n];
+  }
+  if(s===approacher) approacher=null;
+  s.state='hunt'; s.huntT=0; s.prey=null; attack=s; alarmT=0;
+  toast('Shark! Row away!',2.2);
+}
+function updateHunt(f,dt,len){
+  f.huntT+=dt;
+  const dx=boat.x-f.x, dy=24-f.y, d=Math.hypot(dx,dy)||1;
+  if(Math.abs(dx)>4) f.dir=dx>0?1:-1;
+  const sp=Math.min(185,105+f.huntT*45);
+  const nx=f.x+dx/d*sp*dt;
+  if(bed(nx)<SHALLOW || bed(boat.x)<SHALLOW-40){ endAttack('The shark can\'t follow you into the shallows!'); return; }
+  f.x=nx; f.y=Math.max(22,f.y+dy/d*sp*dt);
+  if(Math.random()<dt*6) parts.push({x:f.x-f.dir*len*.4,y:f.y,vx:0,vy:rand(-40,-20),life:1.2,max:1.2,r:rand(1.5,3),k:'b'});
+  if(Math.abs(f.x-boat.x)<78 && f.y<70){ gameOver(f); return; }
+  if(f.huntT>9 || Math.abs(f.x-boat.x)>800) endAttack('You got away from the shark!');
+}
+function endAttack(msg){
+  const f=attack; attack=null; if(!f) return;
+  f.state='flee'; f.fleeT=3; f.dir=f.x>boat.x?1:-1; f.cool=12; f.baseY=rand(450,800);
+  if(msg){ toast(msg,2.2); sfx.phew(); setMood('happy',1.6); }
+}
+function spawnAt(def,x,y){
+  fishes.push({def,x,baseY:y,y,dir:1,speed:def.speed*rand(.95,1.1),ph:rand(0,6.28),cool:2,state:'swim',turnT:rand(5,12),sz:rand(.95,1.1),life:Infinity});
+}
+function gameOver(f){
+  S.mode='over'; overT=t; attack=null;
+  f.state='flee'; f.fleeT=3; f.dir=-f.dir; f.cool=12; f.baseY=rand(450,800);
+  if(hooked){ hooked.state='swim'; hooked.cool=4; hooked=null; } tension=0; $('fight').hidden=true;
+  for(const k in keys) keys[k]=false;
+  for(let i=0;i<30;i++) parts.push({x:boat.x+rand(-60,60),y:0,vx:rand(-160,160),vy:rand(-300,-90),life:1.1,max:1.1,r:rand(2,5),k:'s'});
+  sfx.chomp(); sfx.over(); setMood('sad',99);
+  if(S.score>S.best) S.best=S.score; store.set('best',S.best);
+  $('help').hidden=true; $('touch').hidden=true;
+  setTimeout(()=>{
+    $('overText').textContent=`A shark bit ${CATS[S.cat].name}'s boat. You scored ${S.score} ${S.score===1?'point':'points'} this trip. Best trip: ${S.best}.`;
+    $('over').hidden=false; $('againBtn').focus();
+  },1100);
+}
+function newTrip(){
+  S.score=0; hooked=null; approacher=null; tension=0; hook.L=0; hook.offset=0; boat.vx=0; moodOv.until=0; idleT=0;
+  if(attack) endAttack(null); attackT=rand(30,45);
+  // send any sharks near the boat away
+  for(const f of fishes) if(f.def.shark && Math.abs(f.x-boat.x)<700){ f.state='swim'; f.x=clamp(boat.x+(boat.x<WORLD_W/2?1:-1)*rand(900,1300),80,WORLD_W-80); f.y=f.baseY=rand(500,900); }
+  $('over').hidden=true; $('fight').hidden=true;
 }
 function hookFish(f){
   hooked=f; approacher=null; f.state='hooked'; tension=0; moodOv.until=0;
@@ -406,8 +520,9 @@ function update(dt){
   // boat
   const acc=520*(mods.boat||1), maxV=220*(mods.boat||1);
   const dirIn=(keys.right?1:0)-(keys.left?1:0);
-  if(dirIn) boat.vx+=dirIn*acc*dt*(hooked?.4:1); else boat.vx*=Math.pow(.15,dt);
-  boat.vx=clamp(boat.vx,-maxV*(hooked?.5:1),maxV*(hooked?.5:1));
+  const slow = hooked && !attack;   // a fish on the line slows the boat, but not while a shark is after you
+  if(dirIn) boat.vx+=dirIn*acc*dt*(slow?.4:1); else boat.vx*=Math.pow(.15,dt);
+  boat.vx=clamp(boat.vx,-maxV*(slow?.5:1),maxV*(slow?.5:1));
   boat.x+=boat.vx*dt;
   if(boat.x<160){boat.x=160;boat.vx=0} if(boat.x>WORLD_W-160){boat.x=WORLD_W-160;boat.vx=0}
   if(boat.vx>25) boat.facing=1; else if(boat.vx<-25) boat.facing=-1;
@@ -441,6 +556,8 @@ function update(dt){
     if(hook.y<1) { hooked.y=Math.max(hooked.y,2); }
   }
   popT-=dt; if(popT<=0){ popT=1; populate(true); }
+  maybeStartAttack(dt);
+  if(attack){ alarmT-=dt; if(alarmT<=0){ alarmT=.7; sfx.alarm(); } }
 
   // particles
   for(let i=parts.length-1;i>=0;i--){
@@ -540,13 +657,68 @@ function drawFish(c,def,L,tt,o={}){
       eye(c,rx*.62,-ry*.2,ry*.24);
       if(o.sparkle!==false){c.fillStyle='rgba(255,250,200,'+(.5+.5*Math.sin(tt*6))+')';const sx=Math.sin(tt*2)*rx*.6;c.beginPath();c.moveTo(sx,-ry-8);c.lineTo(sx+2,-ry-2);c.lineTo(sx+8,-ry);c.lineTo(sx+2,-ry+2);c.lineTo(sx,-ry+8);c.lineTo(sx-2,-ry+2);c.lineTo(sx-8,-ry);c.lineTo(sx-2,-ry-2);c.fill();}
       break; }
+    case 'shark':{ const ry=L*.15, jaw=o.jaw||0, top='#62788d', bel='#eef2f4';
+      tail(c,-rx+6,ry*1.7,L*.26,wag*.7,top,true);
+      fin(c,[-rx*.62,-ry*.55,-rx*.72,-ry*1.35,-rx*.5,-ry*.6],top);
+      fin(c,[-rx*.12,-ry*.8,rx*.02,-ry*2.7,rx*.32,-ry*.85],top);
+      const g=c.createLinearGradient(0,-ry,0,ry); g.addColorStop(0,top); g.addColorStop(.5,'#8fa3b4'); g.addColorStop(.62,bel); g.addColorStop(1,bel);
+      c.beginPath(); c.moveTo(rx,ry*.12); c.bezierCurveTo(rx*.92,-ry*1.15,-rx*.3,-ry*1.2,-rx*.96,-ry*.22); c.lineTo(-rx*.96,ry*.22); c.bezierCurveTo(-rx*.3,ry*1.05,rx*.75,ry*1.1,rx,ry*.12); c.closePath();
+      c.fillStyle=g; c.fill(); c.strokeStyle='rgba(30,40,50,.55)'; c.lineWidth=1.3; c.stroke();
+      c.strokeStyle='rgba(40,55,70,.55)'; c.lineWidth=1.1; for(let i=0;i<4;i++){ const x=rx*(.46-i*.06); c.beginPath(); c.moveTo(x,-ry*.35); c.quadraticCurveTo(x-2,0,x,ry*.3); c.stroke(); }
+      fin(c,[rx*.3,ry*.55,rx*.05,ry*1.9,-rx*.05,ry*.7],'#56697d');
+      c.fillStyle='#10161c'; ellipse(c,rx*.72,-ry*.28,ry*.13,ry*.13); c.fill(); c.fillStyle='#fff'; ellipse(c,rx*.74,-ry*.33,ry*.04,ry*.04); c.fill();
+      if(jaw){ const open=.5+.5*Math.abs(Math.sin(tt*6));
+        c.beginPath(); c.moveTo(rx*.98,ry*.18); c.lineTo(rx*.55,ry*.35); c.lineTo(rx*.9,ry*(.4+.5*open)); c.closePath(); c.fillStyle='#5a1f22'; c.fill();
+        c.fillStyle='#fff'; for(let i=0;i<4;i++){ const x=rx*(.6+i*.09); c.beginPath(); c.moveTo(x,ry*.3); c.lineTo(x+3,ry*.45); c.lineTo(x+6,ry*.3); c.fill(); }
+      } else { c.strokeStyle='rgba(30,40,50,.6)'; c.lineWidth=1.2; c.beginPath(); c.moveTo(rx*.92,ry*.3); c.quadraticCurveTo(rx*.75,ry*.42,rx*.6,ry*.34); c.stroke(); }
+      break; }
+    case 'turtle1': case 'turtle2': case 'turtle3': drawTurtle(c,def,L,tt,o); break;
     default: drawCritter(c,def,L,tt,o);
   }
 }
+// sea turtles (side view, facing +x). Three kinds share one shape with their own colours.
+const TURTLE_LOOK={
+  turtle1:{shell:'#9a8442', dark:'#6b5a26', belly:'#e3d39a', skin:'#a8b46e', spots:'#7d8a4a'},
+  turtle2:{shell:'#6f7f3c', dark:'#4a5628', belly:'#e9dfae', skin:'#93ad78', spots:'#5f7a4c'},
+  turtle3:{shell:'#2f3b4a', dark:'#1b232c', belly:'#c9ced6', skin:'#53606f', spots:'#e6ebf0', ridges:true},
+};
+function drawTurtle(c,def,L,tt,o){
+  const k=TURTLE_LOOK[def.id], rx=L*.36, ry=L*.2, sw=Math.sin(tt*(o.fast?7:2.4));
+  c.lineCap='round'; c.lineJoin='round';
+  const flipper=(x,y,len,w,ang,col)=>{ c.save(); c.translate(x,y); c.rotate(ang); c.beginPath(); c.moveTo(0,-w*.5); c.quadraticCurveTo(-len*.6,-w*.9,-len,0); c.quadraticCurveTo(-len*.55,w*.6,0,w*.5); c.closePath(); fs(c,col,1.1); c.restore(); };
+  // far flippers (behind the shell)
+  flipper(rx*.35,ry*.35,L*(def.id==='turtle3'?.42:.34),L*.09,-(.45+sw*.35),k.dark);
+  flipper(-rx*.65,ry*.3,L*.16,L*.07,-(.25-sw*.2),k.dark);
+  // head and neck
+  c.save(); c.translate(rx*.95,-ry*.05+Math.sin(tt*1.3)*1.2);
+  c.beginPath(); c.moveTo(-L*.1,-L*.05); c.quadraticCurveTo(L*.05,-L*.1,L*.14,-L*.03); c.quadraticCurveTo(L*.16,L*.04,L*.06,L*.06); c.quadraticCurveTo(-L*.04,L*.07,-L*.12,L*.05); c.closePath(); fs(c,k.skin,1.1);
+  if(!k.ridges){ c.fillStyle=k.spots; for(const [a,b] of [[0,-.03],[.05,0],[-.04,.01]]){ ellipse(c,L*a,L*b,L*.012,L*.01); c.fill(); } }
+  c.fillStyle='#14100c'; ellipse(c,L*.085,-L*.025,L*.016,L*.016); c.fill(); c.fillStyle='#fff'; ellipse(c,L*.09,-L*.03,L*.006,L*.006); c.fill();
+  c.strokeStyle='rgba(30,20,10,.6)'; c.lineWidth=1; c.beginPath(); c.moveTo(L*.14,L*.0); c.quadraticCurveTo(L*.1,L*.03,L*.06,L*.02); c.stroke();
+  c.restore();
+  // shell: high dome, flat plastron
+  c.beginPath(); c.moveTo(rx,ry*.25); c.bezierCurveTo(rx*.9,-ry*1.5,-rx*.9,-ry*1.6,-rx*1.05,ry*.2); c.quadraticCurveTo(0,ry*.75,rx,ry*.25); c.closePath();
+  const g=c.createLinearGradient(0,-ry*1.3,0,ry*.6); g.addColorStop(0,k.shell); g.addColorStop(1,k.dark);
+  c.fillStyle=g; c.fill(); c.strokeStyle='rgba(30,20,10,.75)'; c.lineWidth=1.4; c.stroke();
+  c.save(); c.clip();
+  if(k.ridges){ c.strokeStyle='rgba(200,210,220,.35)'; c.lineWidth=1.3; for(let i=-2;i<=2;i++){ c.beginPath(); c.moveTo(-rx*1.05,ry*.1+i*ry*.1); c.bezierCurveTo(-rx*.6,-ry*1.1+i*ry*.32,rx*.6,-ry*1.05+i*ry*.32,rx,ry*.15+i*ry*.08); c.stroke(); }
+    c.fillStyle=k.spots; for(let i=0;i<9;i++){ ellipse(c,-rx*.7+(i*.53%1.4)*rx,-ry*.7+((i*.37)%1)*ry,1.3,1.3); c.fill(); } }
+  else { c.strokeStyle='rgba(40,30,10,.55)'; c.lineWidth=1.2;
+    for(const [x0,y0] of [[-.55,-.35],[-.12,-.62],[.32,-.45],[-.35,.05],[.1,-.1],[.55,-.02]]){ const cx=rx*x0, cy=ry*y0, r=ry*.36;
+      c.beginPath(); for(let j=0;j<6;j++){ const a=j/6*Math.PI*2; c.lineTo(cx+Math.cos(a)*r*1.15,cy+Math.sin(a)*r*.8); } c.closePath(); c.stroke(); }
+    c.fillStyle='rgba(255,240,200,.18)'; ellipse(c,-rx*.15,-ry*.75,rx*.45,ry*.22); c.fill(); }
+  c.restore();
+  // plastron rim
+  c.beginPath(); c.moveTo(rx*.95,ry*.28); c.quadraticCurveTo(0,ry*.8,-rx*1.0,ry*.22); c.strokeStyle=k.belly; c.lineWidth=ry*.22; c.stroke();
+  c.strokeStyle='rgba(30,20,10,.6)'; c.lineWidth=1; c.beginPath(); c.moveTo(rx*.95,ry*.4); c.quadraticCurveTo(0,ry*.92,-rx*1.0,ry*.32); c.stroke();
+  // near flippers (in front)
+  flipper(rx*.42,ry*.42,L*(def.id==='turtle3'?.46:.38),L*.1,-(.6-sw*.4),k.skin);
+  flipper(-rx*.6,ry*.38,L*.18,L*.08,-(.35+sw*.25),k.skin);
+}
 function fishThumb(def,w,h,silhouette){
   const c=document.createElement('canvas'), d=2; c.width=w*d; c.height=h*d; const x=c.getContext('2d');
-  const extra={swordfish:1.55,angler:1.35,eel:1.05,puffer:1.3,koi:1.35,shrimp:1.5,lobster:1.6,jelly:1.0,clam:1.05,oyster:1.15,boot:1.15,can:1.2,tire:1.0,bottle:1.0,bag:1.0}[def.id]||1.3;
-  const hf={perch:1.05,puffer:1.25,angler:1.35,swordfish:.75,koi:.85,salmon:.7,eel:.3,shrimp:.9,lobster:.95,jelly:1.25,clam:1.0,oyster:1.35,boot:1.1,can:1.0,tire:1.05,bottle:1.15,bag:1.4}[def.id]||.55;
+  const extra={shark:1.35,turtle1:1.45,turtle2:1.45,turtle3:1.5,swordfish:1.55,angler:1.35,eel:1.05,puffer:1.3,koi:1.35,shrimp:1.5,lobster:1.6,jelly:1.0,clam:1.05,oyster:1.15,boot:1.15,can:1.2,tire:1.0,bottle:1.0,bag:1.0}[def.id]||1.3;
+  const hf={shark:.55,turtle1:.8,turtle2:.8,turtle3:.8,perch:1.05,puffer:1.25,angler:1.35,swordfish:.75,koi:.85,salmon:.7,eel:.3,shrimp:.9,lobster:.95,jelly:1.25,clam:1.0,oyster:1.35,boot:1.1,can:1.0,tire:1.05,bottle:1.15,bag:1.4}[def.id]||.55;
   const L=Math.min(w*.82/extra, h*.88/hf);
   x.scale(d,d); const cx={swordfish:-L*.2,shrimp:-L*.15,lobster:-L*.05}[def.id]; const cy={angler:h*.12,jelly:-h*.08,clam:h*.12,oyster:h*.2,bag:h*.05}[def.id]||0;
   x.translate(w/2+(cx??(def.move?0:L*.08)),h/2+cy);
@@ -668,6 +840,8 @@ function catFx(c,hx,hy,mood,tt,fr){
 let moodOv={m:null,until:0}, idleT=0;
 function setMood(m,sec){ moodOv={m,until:t+sec}; }
 function currentMood(){
+  if(S.mode==='over') return 'sad';
+  if(attack) return 'shocked';
   if(t<moodOv.until) return moodOv.m;
   if(hooked){
     if(hooked.def.trash) return 'disgust';
@@ -736,7 +910,7 @@ function render(){
   for(const f of fishes){
     const len=f.def.len*f.sz; if(f.x<L-150||f.x>R+150||f.y<T-100||f.y>B+100) continue;
     ctx.save(); ctx.translate(f.x,f.y);
-    const o={fast:f.state!=='swim', f, open:Math.max(0,Math.sin(t*.7+f.ph))**3, zap:f.def.id==='jelly'&&Math.sin(t*5+f.ph)>.9};
+    const o={fast:f.state!=='swim', jaw:f.state==='hunt'||f.state==='chase'?1:0, f, open:Math.max(0,Math.sin(t*.7+f.ph))**3, zap:f.def.id==='jelly'&&Math.sin(t*5+f.ph)>.9};
     if(f===hooked && f.heading!=null){ ctx.rotate(f.heading); if(Math.cos(f.heading)<0) ctx.scale(1,-1); o.fast=true; o.puff=true; drawFish(ctx,f.def,len,t+f.ph,o); }
     else { if(f===hooked){ ctx.rotate(Math.sin(t*3)*.15); o.open=0; } else ctx.scale(f.dir,1); drawFish(ctx,f.def,len,t+f.ph,o); }
     ctx.restore();
@@ -779,6 +953,20 @@ function render(){
       ctx.fillStyle=lg; ellipse(ctx,lx,ly,60,60); ctx.fill(); }
     ctx.restore();
   }
+  if(attack) drawSharkWarning();
+}
+function drawSharkWarning(){
+  ctx.setTransform(1,0,0,1,0,0);
+  const s=scale*dpr, W=cv.width, H=cv.height, side=attack.x<boat.x?-1:1, a=.35+.25*Math.sin(t*10);
+  const g = side<0 ? ctx.createLinearGradient(0,0,W*.22,0) : ctx.createLinearGradient(W,0,W*.78,0);
+  g.addColorStop(0,'rgba(210,40,30,'+a+')'); g.addColorStop(1,'rgba(210,40,30,0)');
+  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+  const dist=Math.max(0,Math.hypot(attack.x-boat.x,attack.y-24)-78)/PX_PER_M, ty=H*.6;
+  ctx.font=Math.round(24*s)+'px "Lilita One","Trebuchet MS",sans-serif'; ctx.textAlign='center';
+  const txt = side<0 ? 'Shark! Row right  →' : '←  Row left! Shark!';
+  ctx.lineWidth=5*s; ctx.strokeStyle='#5e3820'; ctx.strokeText(txt,W/2,ty); ctx.fillStyle='#fff'; ctx.fillText(txt,W/2,ty);
+  ctx.font=Math.round(14*s)+'px "Nunito",sans-serif'; ctx.lineWidth=4*s; const t2=dist.toFixed(1)+' m away · shallow water near the shore is safe';
+  ctx.strokeText(t2,W/2,ty+24*s); ctx.fillText(t2,W/2,ty+24*s);
 }
 
 function drawDetailedHull(front){
@@ -818,7 +1006,8 @@ function drawDetailedHull(front){
 
 function drawBoat(){
   const f=boat.facing, mood=currentMood(), p=sprFor(mood);
-  ctx.save(); ctx.translate(boat.x,boat.y-14); ctx.rotate(boat.tilt*.6);
+  const sink = S.mode==='over' ? Math.min(26,(t-overT)*22) : 0, shake = S.mode==='over' && t-overT<.6 ? Math.sin(t*70)*3 : 0;
+  ctx.save(); ctx.translate(boat.x+shake,boat.y-14+sink); ctx.rotate(boat.tilt*.6+(S.mode==='over'?Math.min(.18,(t-overT)*.2)*-boat.facing:0));
   const hop = mood==='happy' ? -Math.abs(Math.sin(t*9))*3 : 0;
   const tug = hooked && !hooked.def.inert && phase==='thrash' ? Math.sin(t*38)*.8 : 0;
   const jx = (mood==='shocked'||mood==='strain') ? Math.sin(t*60)*.7 : 0;
@@ -838,7 +1027,9 @@ function drawBoat(){
 let last=0;
 function frame(now){
   const dt=Math.min(.05,(now-last)/1000||0); last=now;
-  if(S.mode==='play') update(dt); else { t+=dt; boat.y=wave(boat.x,t); }
+  if(S.mode==='play') update(dt);
+  else if(S.mode==='over') { t+=dt; boat.y=wave(boat.x,t); updateFish(dt*.6); for(let i=parts.length-1;i>=0;i--){ const p=parts[i]; p.life-=dt; if(p.k==='b'){ p.y+=p.vy*dt; if(p.y<0) p.life=0; } else { p.vy+=600*dt; p.x+=p.vx*dt; p.y+=p.vy*dt; } if(p.life<=0) parts.splice(i,1); } }
+  else { t+=dt; boat.y=wave(boat.x,t); }
   render();
   requestAnimationFrame(frame);
 }
@@ -906,8 +1097,10 @@ function openDex(){
 }
 $('dexBtn').onclick=openDex;
 $('dexClose').onclick=()=>{ $('dex').hidden=true; S.mode='play'; };
-$('catBtn').onclick=()=>{ S.mode='select'; buildCats(); $('select').hidden=false; $('hud').hidden=true; $('help').hidden=true; $('touch').hidden=true; $('fight').hidden=true; if(hooked){hooked.state='swim';hooked=null;} };
+$('catBtn').onclick=()=>{ if(attack) endAttack(null); S.mode='select'; buildCats(); $('select').hidden=false; $('hud').hidden=true; $('help').hidden=true; $('touch').hidden=true; $('fight').hidden=true; if(hooked){hooked.state='swim';hooked=null;} };
 $('startBtn').onclick=start;
+$('againBtn').onclick=()=>{ newTrip(); start(); };
+$('overCatBtn').onclick=()=>{ newTrip(); $('catBtn').click(); };
 $('soundBtn').onclick=()=>{ S.sound=!S.sound; updateHud(); if(S.sound) audio(); };
 
 const KEYMAP={ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right',ArrowUp:'up',KeyW:'up',Space:'up',ArrowDown:'down',KeyS:'down'};
