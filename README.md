@@ -95,9 +95,23 @@ Trash costs you points, so try to steer your hook around it.
 
 The lake is about 29 m deep in the middle and gets shallow near the shores. The water gets dark below about 9 m, so look for the light around your hook.
 
+## Saving your progress
+
+The game saves by itself on your device: your fish log, best score, the current trip's score and your cat. Close the page and come back any time.
+
+Press **Save** (on the lake or on the start screen) to:
+
+- **Copy your save code.** It looks like `WL1-2.BO.DW.3.ZD.1.Z3.2-ZQE`. Keep it as a backup, or paste it into **Load a save code** on another phone or computer to carry on there.
+- **Restart trip.** Sets the trip's score back to 0 but keeps your fish log and best score.
+- **Reset everything.** Erases all progress on this device. You tap it twice so you can't do it by accident.
+
+## Music
+
+The game plays background music, *Whiskers and Ripples*. Turn it off any time with the **Music** button.
+
 ## How it's made
 
-The whole game is one `index.html` file using HTML5 Canvas and plain JavaScript. All the pictures are built into that file. It needs no game engine and no install, and it runs on GitHub Pages.
+The whole game is one `index.html` file using HTML5 Canvas and plain JavaScript, plus `music.mp3` for the background music. All the pictures are built into `index.html`. It needs no game engine and no install, and it runs on GitHub Pages.
 
 ## Credits
 

@@ -88,6 +88,9 @@ button:focus-visible{outline:3px solid #ffd76a;outline-offset:2px}
 .junkhead{margin:22px 0 0;font-family:var(--display);font-weight:400;font-size:20px;color:var(--ink-soft);display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}
 .junkhead span{font-family:var(--body);font-size:13px;font-weight:700}
 .dexitem.trash{background:#f1ece2}
+.saverow{display:flex;gap:8px;align-items:center}
+.saverow input{flex:1;min-width:0;font:600 14px var(--body);padding:10px 12px;border:2px solid var(--wood-dark);border-radius:10px;background:#fffaf0;color:var(--ink)}
+.go.small{font-size:17px;padding:8px 16px}
 .dexhead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -102,6 +105,8 @@ button:focus-visible{outline:3px solid #ffd76a;outline-offset:2px}
       <div class="stat plate"><small>Depth</small><b id="depth">0 m</b></div>
       <button class="hbtn plate" id="dexBtn">Fish log <span id="dexCount">0/15</span></button>
       <button class="hbtn plate" id="soundBtn">Sound on</button>
+      <button class="hbtn plate" id="musicBtn">Music on</button>
+      <button class="hbtn plate" id="saveBtn">Save</button>
       <button class="hbtn plate" id="catBtn">Switch cat</button>
     </div>
   </div>
@@ -128,7 +133,7 @@ button:focus-visible{outline:3px solid #ffd76a;outline-offset:2px}
       <div class="cats" id="cats"></div>
       <div class="row">
         <p id="pickNote">Each cat has a fishing talent. Choose one to set sail.</p>
-        <button class="go" id="startBtn">Set sail</button>
+        <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="go" id="selSaveBtn" style="background:var(--ink-soft);font-size:18px">Save &amp; reset</button><button class="go" id="startBtn">Set sail</button></div>
       </div>
     </div>
   </div>
@@ -141,6 +146,26 @@ button:focus-visible{outline:3px solid #ffd76a;outline-offset:2px}
         <button class="go" id="againBtn">Try again</button>
         <button class="go" id="overCatBtn" style="background:var(--ink-soft)">Pick a cat</button>
       </div>
+    </div>
+  </div>
+
+  <div id="saves" class="screen" hidden>
+    <div class="sheet plate" style="width:min(620px,100%)">
+      <div class="dexhead"><h2>Save</h2><button class="go" id="savesClose" style="font-size:18px;padding:8px 20px">Back</button></div>
+      <p class="lede" style="margin-bottom:10px">Your progress saves by itself on this device: your fish log, best score, this trip's score and your cat. Come back any time and keep fishing.</p>
+      <h3 class="junkhead" style="margin-top:8px">Save code</h3>
+      <p style="margin:4px 0 8px;font-size:13px;color:var(--ink-soft)">Copy this code to keep a backup or to move your progress to another phone or computer.</p>
+      <div class="saverow"><input id="saveCode" readonly aria-label="Your save code"><button class="go small" id="copyBtn">Copy</button></div>
+      <h3 class="junkhead">Load a save code</h3>
+      <p style="margin:4px 0 8px;font-size:13px;color:var(--ink-soft)">Paste a code from another device. It replaces the progress on this device.</p>
+      <div class="saverow"><input id="loadCode" placeholder="WL1-…" aria-label="Save code to load" autocomplete="off" spellcheck="false"><button class="go small" id="loadBtn">Load</button></div>
+      <p id="saveMsg" role="status" style="min-height:20px;margin:8px 0 0;font-size:14px"></p>
+      <h3 class="junkhead">Start over</h3>
+      <div class="saverow" style="flex-wrap:wrap">
+        <button class="go small" id="restartBtn" style="background:var(--ink-soft)">Restart trip</button>
+        <button class="go small" id="resetBtn" style="background:var(--bad)">Reset everything</button>
+      </div>
+      <p style="margin:6px 0 0;font-size:13px;color:var(--ink-soft)"><b>Restart trip</b> sets this trip's score back to 0 and keeps your fish log and best score. <b>Reset everything</b> erases all progress on this device.</p>
     </div>
   </div>
 
@@ -450,7 +475,7 @@ function gameOver(f){
   for(const k in keys) keys[k]=false;
   for(let i=0;i<30;i++) parts.push({x:boat.x+rand(-60,60),y:0,vx:rand(-160,160),vy:rand(-300,-90),life:1.1,max:1.1,r:rand(2,5),k:'s'});
   sfx.chomp(); sfx.over(); setMood('sad',99);
-  if(S.score>S.best) S.best=S.score; store.set('best',S.best);
+  if(S.score>S.best) S.best=S.score; store.set('best',S.best); store.set('trip',{score:0,cat:S.cat,x:Math.round(boat.x)});
   $('help').hidden=true; $('touch').hidden=true;
   setTimeout(()=>{
     $('overText').textContent=`A shark bit ${CATS[S.cat].name}'s boat. You scored ${S.score} ${S.score===1?'point':'points'} this trip. Best trip: ${S.best}.`;
@@ -1079,10 +1104,74 @@ function showCatch(def,isNew,pts,pearl){
   el.hidden=false; el.style.animation='none'; void el.offsetWidth; el.style.animation='';
   clearTimeout(cardTimer); cardTimer=setTimeout(()=>el.hidden=true,2600);
 }
+// ---------- saving ----------
+// Auto-save: the trip (score, cat, boat position) is written every few seconds and when the page is hidden.
+// The fish log and best score were already saved whenever they change.
+const trip0=store.get('trip',null);
+if(trip0){ S.score=trip0.score|0; if(trip0.cat!=null) S.cat=trip0.cat; if(trip0.x) boat.x=clamp(trip0.x,160,WORLD_W-160); }
+function saveTrip(){ store.set('trip',{score:S.score, cat:S.cat, x:Math.round(boat.x)}); store.set('cat',S.cat); store.set('best',S.best); store.set('caught',S.caught); }
+setInterval(()=>{ if(S.mode==='play') saveTrip(); },3000);
+document.addEventListener('visibilitychange',()=>{ if(document.hidden) saveTrip(); });
+window.addEventListener('pagehide',saveTrip);
+// Save code: version, cat, trip score, best, then how many of each creature you caught, in FISH order (new kinds go at the end).
+function codeHash(str){ let h=7; for(const ch of str) h=(h*31+ch.charCodeAt(0))%46656; return h.toString(36).padStart(3,'0'); }
+function makeCode(){
+  const nums=[S.cat,S.score,S.best,...FISH.map(d=>S.caught[d.id]||0)];
+  while(nums.length>3 && nums[nums.length-1]===0) nums.pop();
+  const tok=[]; for(let i=0;i<nums.length;){ let j=i; while(i>2 && j<nums.length && nums[j]===0) j++;
+    if(j-i>=2){ tok.push('z'+(j-i).toString(36)); i=j; } else { tok.push(nums[i].toString(36)); i++; } }   // runs of zeros -> zN
+  const body=tok.join('.');
+  return ('WL1-'+body+'-'+codeHash(body)).toUpperCase();
+}
+function readCode(txt){
+  const m=String(txt).trim().toLowerCase().replace(/\s+/g,'').match(/^wl1-([0-9a-z.\-]+)-([0-9a-z]{3})$/);
+  if(!m || codeHash(m[1])!==m[2]) return null;
+  const n=[]; for(const x of m[1].split('.')){ if(x[0]==='z'){ const k=parseInt(x.slice(1),36); if(!(k>0&&k<500)) return null; for(let i=0;i<k;i++) n.push(0); } else n.push(parseInt(x,36)); }
+  if(n.length<3 || n.some(x=>!Number.isFinite(x))) return null;
+  const caught={}; FISH.forEach((d,i)=>{ const v=n[3+i]; if(v>0) caught[d.id]=v; });
+  return {cat:clamp(n[0],0,CATS.length-1), score:n[1], best:n[2], caught};
+}
+let resetArmed=0;
+function openSaves(){
+  S.prevMode=S.mode; S.mode='saves'; for(const k in keys) keys[k]=false; saveTrip();
+  $('saveCode').value=makeCode(); $('loadCode').value=''; $('saveMsg').textContent=''; resetArmed=0; $('resetBtn').textContent='Reset everything';
+  $('saves').hidden=false;
+}
+function closeSaves(){ $('saves').hidden=true; S.mode=S.prevMode||'select'; if(S.mode==='over' && $('over').hidden){ S.mode='play'; $('help').hidden=false; $('touch').hidden=false; } if(S.mode==='select'){ buildCats(); selNote(); } }
+function saveMsg(t,ok){ const e=$('saveMsg'); e.textContent=t; e.style.color=ok?'var(--good)':'var(--bad)'; }
+function selNote(){
+  $('pickNote').textContent = S.score ? `Welcome back! Your trip is saved with ${S.score} points. Set sail to keep fishing.` : 'Each cat has a fishing talent. Choose one to set sail.';
+  $('startBtn').textContent = S.score ? 'Keep fishing' : 'Set sail';
+}
+$('saveBtn').onclick=openSaves; $('selSaveBtn').onclick=openSaves; $('savesClose').onclick=closeSaves;
+$('copyBtn').onclick=async()=>{ const el=$('saveCode'); el.select(); let ok=false;
+  try{ await navigator.clipboard.writeText(el.value); ok=true; }catch(e){ try{ ok=document.execCommand('copy'); }catch(e2){} }
+  saveMsg(ok?'Copied! Keep the code somewhere safe.':'Select the code and copy it yourself.',ok); };
+$('loadBtn').onclick=()=>{ const d=readCode($('loadCode').value);
+  if(!d){ saveMsg('That code doesn\'t look right. Check it and try again.',false); return; }
+  if(hooked){ hooked.state='swim'; hooked=null; $('fight').hidden=true; }
+  S.cat=d.cat; S.score=d.score; S.best=Math.max(d.best,d.score); S.caught=d.caught; mods=CATS[S.cat].mods; saveTrip(); updateHud();
+  $('saveCode').value=makeCode(); saveMsg('Loaded! Welcome back, '+CATS[S.cat].name+'.',true); };
+$('restartBtn').onclick=()=>{ newTrip(); saveTrip(); updateHud(); $('saveCode').value=makeCode(); saveMsg('New trip started. Your fish log and best score are kept.',true); };
+$('resetBtn').onclick=()=>{
+  if(!resetArmed){ resetArmed=1; $('resetBtn').textContent='Tap again to erase'; saveMsg('This erases your fish log and best score on this device. Tap again to confirm.',false); setTimeout(()=>{ resetArmed=0; $('resetBtn').textContent='Reset everything'; },4000); return; }
+  resetArmed=0; $('resetBtn').textContent='Reset everything';
+  newTrip(); S.caught={}; S.best=0; S.cat=0; mods=CATS[0].mods;
+  for(const k of ['trip','caught','best','cat']) try{ localStorage.removeItem('whisker-'+k); }catch(e){}
+  saveTrip(); updateHud(); $('saveCode').value=makeCode(); saveMsg('Everything has been reset. Happy fishing!',true); };
+
+// ---------- music ----------
+const music=new Audio('music.mp3'); music.loop=true; music.volume=.35; music.preload='auto';
+S.music=store.get('music',true);
+function playMusic(){ if(S.music && !document.hidden){ const p=music.play(); if(p&&p.catch) p.catch(()=>{}); } }
+$('musicBtn').onclick=()=>{ S.music=!S.music; store.set('music',S.music); if(S.music) playMusic(); else music.pause(); updateHud(); };
+document.addEventListener('visibilitychange',()=>{ if(document.hidden) music.pause(); else if(S.mode!=='select') playMusic(); });
+
 function updateHud(){
   const c=CATS[S.cat]; $('hudCat').src=CAT_IMG[c.id]; $('hudName').textContent=c.name; $('hudPerk').textContent=c.perk+': '+c.perkText.toLowerCase();
   $('score').textContent=S.score; $('dexCount').textContent=LIFE.filter(d=>S.caught[d.id]).length+'/'+LIFE.length;
   $('soundBtn').textContent=S.sound?'Sound on':'Sound off';
+  $('musicBtn').textContent=S.music?'Music on':'Music off';
 }
 function buildCats(){
   const wrap=$('cats'); wrap.innerHTML='';
@@ -1093,11 +1182,12 @@ function buildCats(){
     b.ondblclick=start;
     wrap.append(b);
   });
+  if(typeof selNote==='function') selNote();
 }
 function start(){
   mods=CATS[S.cat].mods; S.mode='play'; audio();
   $('select').hidden=true; $('hud').hidden=false; $('help').hidden=false; $('touch').hidden=false;
-  updateHud(); toast(CATS[S.cat].name+' sets sail!');
+  updateHud(); playMusic(); saveTrip(); toast(S.score?CATS[S.cat].name+' is back on the lake!':CATS[S.cat].name+' sets sail!');
 }
 function dexWhere(def){
   if(def.rare) return 'Rare · any depth';
@@ -1129,7 +1219,7 @@ $('overCatBtn').onclick=()=>{ newTrip(); $('catBtn').click(); };
 $('soundBtn').onclick=()=>{ S.sound=!S.sound; updateHud(); if(S.sound) audio(); };
 
 const KEYMAP={ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right',ArrowUp:'up',KeyW:'up',Space:'up',ArrowDown:'down',KeyS:'down'};
-window.addEventListener('keydown',e=>{ const k=KEYMAP[e.code]; if(k&&S.mode==='play'){ keys[k]=true; e.preventDefault(); } if(e.code==='Escape'&&S.mode==='dex') $('dexClose').click(); });
+window.addEventListener('keydown',e=>{ const k=KEYMAP[e.code]; if(k&&S.mode==='play'){ keys[k]=true; e.preventDefault(); } if(e.code==='Escape'&&S.mode==='dex') $('dexClose').click(); if(e.code==='Escape'&&S.mode==='saves') closeSaves(); });
 window.addEventListener('keyup',e=>{ const k=KEYMAP[e.code]; if(k) keys[k]=false; });
 window.addEventListener('blur',()=>{ for(const k in keys) keys[k]=false; });
 document.querySelectorAll('#touch button').forEach(b=>{
@@ -1140,7 +1230,7 @@ document.querySelectorAll('#touch button').forEach(b=>{
 // ---------- boot ----------
 function boot(data){
   if(data && data.score!=null){ S.score=data.score; S.cat=data.cat??S.cat; }
-  resize(); populate(false); buildCats(); updateHud();
+  resize(); populate(false); buildCats(); updateHud(); selNote();
   cam.x=clamp(boat.x-viewW/2,0,WORLD_W-viewW); cam.y=-.4*viewH;
   if(data && data.mode==='play') start();
   requestAnimationFrame(frame);
