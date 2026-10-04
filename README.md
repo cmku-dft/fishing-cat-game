@@ -1,6 +1,6 @@
 # Whisker Lake 🎣🐱
 
-A small fishing game you play in the browser. Pick one of five clan cats, row your boat across the lake and try to find all 19 kinds of sea life, without hooking too much trash, and without getting eaten by a shark.
+A small fishing game you play in the browser. Pick one of five clan cats, row your boat across the lake and try to find all 20 kinds of sea life, without hooking too much trash, and without getting eaten by a shark.
 
 **▶ Play it here: https://cmku-dft.github.io/fishing-cat-game/**
 
@@ -35,6 +35,10 @@ Every so often a shark comes for your boat. A red glow shows which side it's com
 If the shark reaches your boat, the trip is over. You can try again with the same cat or pick another one.
 
 You can also catch sharks. They are worth 300 points but pull very hard.
+
+## Squids
+
+Squids come in different sizes and three colours: pink, purple and aqua. When you have a fish on your hook, a squid nearby will try to steal it. Reel in fast or row away to escape. You can catch squids too, for 260 points.
 
 ## Sea turtles
 
@@ -73,6 +77,7 @@ Every cat has a fishing talent. Your cat stands up in the boat with the rod in i
 | Lobster | Deep lake floor (crawls and fights) | 120 |
 | Swordfish | 15–24 m | 150 |
 | Anglerfish | 22–28 m | 200 |
+| Squid | 4–23 m | 260 |
 | Shark | 3–26 m | 300 |
 | Golden Koi | Anywhere (rare!) | 500 |
 
