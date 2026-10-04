@@ -1,6 +1,6 @@
 # Whisker Lake 🎣🐱
 
-A small fishing game you play in the browser. Pick one of five clan cats, row your boat across the lake and try to find all 20 kinds of sea life, without hooking too much trash, and without getting eaten by a shark.
+A small fishing game you play in the browser. Pick one of five clan cats and fish your way across a map of six places, from Whiskers Lake all the way to the Guardian's Lake and its legendary dragon fish.
 
 **▶ Play it here: https://cmku-dft.github.io/fishing-cat-game/**
 
@@ -22,6 +22,19 @@ When a fish bites, it switches between two moods:
 Pull the fish up to the surface to catch it. The fish log keeps track of every kind you've found.
 
 Clams, oysters, jellyfish and trash don't fight. They get stuck on your hook as soon as it touches them.
+
+## The map
+
+Press **Map** to see where you are. You start at Whiskers Lake. When you have caught every kind of creature in a place, the trail to the next place opens and the Map button glows.
+
+| # | Place | What's special |
+| --- | --- | --- |
+| 1 | Whiskers Lake | Sharks, squids and sea turtles (see below). |
+| 2 | Maple River | A cold, fast river. The current pulls your boat downstream, and bears fish in the shallows near both shores. Get too close and a bear swipes at your boat, which ends the trip. |
+| 3 | The Luminous Cave | Dark, with glowing crystals. Shy fish hide in holes deep down: drop your hook next to a hole and keep perfectly still until they come out. |
+| 4 | The Frozen Lake | The lake is frozen. Hold ↓ (Drop) to smash a hole in the ice, then fish through it. Reel in before you move. |
+| 5 | The Ducky Stream | A shallow, sunny stream. Ducks dive for fish, and frogs and otters try to steal the fish on your hook. |
+| 6 | The Guardian's Lake | A quiet lake among blossom trees. Now and then the legendary Guardian Dragon appears deep down. It is worth 5,000 points but fights for a long time: reel only while it rests. |
 
 ## Sharks!
 
@@ -56,7 +69,7 @@ Every cat has a fishing talent. Your cat stands up in the boat with the rod in i
 | Eelfur | RiverClan deputy | Fish notice the hook from farther away |
 | Squirrelstripe | RiverClan deputy | Golden Koi show up 3× as often |
 
-## Sea life
+## Sea life in Whiskers Lake
 
 | Catch | Where | Points |
 | --- | --- | --- |
@@ -81,6 +94,18 @@ Every cat has a fishing talent. Your cat stands up in the boat with the rod in i
 | Shark | 3–26 m | 300 |
 | Golden Koi | Anywhere (rare!) | 500 |
 
+## Creatures in the other places
+
+| Place | Creatures |
+| --- | --- |
+| Maple River | Brown Trout, Rainbow Trout, Arctic Grayling, Northern Pike, River Sculpin, Crayfish, River Mussel, Lake Sturgeon (350 points) |
+| The Luminous Cave | Blind Cavefish, Lantern Loach, Ghost Catfish, Olm, Glow Eel, Crystal Shrimp, Starlight Jellyfish, Moonstone Crab |
+| The Frozen Lake | Cisco, Lake Whitefish, Arctic Char, Icefish, Burbot, Lake Trout |
+| The Ducky Stream | Stickleback, Golden Shiner, Creek Chub, Bluegill, Channel Catfish, Frog, Pond Snail |
+| The Guardian's Lake | Lotus Koi, Blossom Trout, Jade Perch, Moon Carp, Guardian Dragon (5,000 points) |
+
+The fish log shows every place you have reached and how many kinds you have found there.
+
 ## Trash
 
 Trash costs you points, so try to steer your hook around it.
@@ -97,24 +122,26 @@ The lake is about 29 m deep in the middle and gets shallow near the shores. The 
 
 ## Saving your progress
 
-The game saves by itself on your device: your fish log, best score, the current trip's score and your cat. Close the page and come back any time.
+The game saves by itself on your device: your fish log, best score, the current trip's score, your cat and the place you're fishing. Close the page and come back any time.
 
-Press **Save** (on the lake or on the start screen) to:
+Press **Menu** (on the lake) or **Save & reset** (on the start screen) to:
 
+- **Turn sound and music on or off**, or switch cat.
 - **Copy your save code.** It looks like `WL1-2.BO.DW.3.ZD.1.Z3.2-ZQE`. Keep it as a backup, or paste it into **Load a save code** on another phone or computer to carry on there.
 - **Restart trip.** Sets the trip's score back to 0 but keeps your fish log and best score.
 - **Reset everything.** Erases all progress on this device. You tap it twice so you can't do it by accident.
 
 ## Music
 
-The game plays background music, *Whiskers and Ripples*. Turn it off any time with the **Music** button.
+The game plays background music, *Whiskers and Ripples*. Turn it off any time in the **Menu**.
 
 ## How it's made
 
-The whole game is one `index.html` file using HTML5 Canvas and plain JavaScript, plus `music.mp3` for the background music. All the pictures are built into `index.html`. It needs no game engine and no install, and it runs on GitHub Pages.
+The whole game is one `index.html` file using HTML5 Canvas and plain JavaScript, plus `music.mp3` for the background music. All the pictures, including the map, are built into `index.html`. It needs no game engine and no install, and it runs on GitHub Pages.
 
 ## Credits
 
 - Cat characters and artwork: original drawings by the creator of this repo.
 - Fishing poses: a sprite sheet of the same five cats, each with five faces.
+- Squid drawing and the map: artwork supplied by the creator of this repo.
 - Game code: built with help from Claude, with the boat redrawn with help from ChatGPT.
