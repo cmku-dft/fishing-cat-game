@@ -99,10 +99,12 @@ Every cat has a fishing talent. Your cat stands up in the boat with the rod in i
 | Place | Creatures |
 | --- | --- |
 | Maple River | Brown Trout, Rainbow Trout, Arctic Grayling, Northern Pike, River Sculpin, Crayfish, River Mussel, Lake Sturgeon (350 points) |
-| The Luminous Cave | Blind Cavefish, Lantern Loach, Ghost Catfish, Olm, Glow Eel, Crystal Shrimp, Starlight Jellyfish, Moonstone Crab |
+| The Luminous Cave | Blind Cavefish, Lantern Loach, Ghost Catfish, Olm, Glow Eel, Crystal Shrimp, Starlight Jellyfish, Moonstone Crab, Crystal Axolotl (760 points) |
 | The Frozen Lake | Cisco, Lake Whitefish, Arctic Char, Icefish, Burbot, Lake Trout |
 | The Ducky Stream | Stickleback, Golden Shiner, Creek Chub, Bluegill, Channel Catfish, Frog, Pond Snail |
 | The Guardian's Lake | Lotus Koi, Blossom Trout, Jade Perch, Moon Carp, Guardian Dragon (5,000 points) |
+
+**The Crystal Axolotl** is the cave's biggest prize. It glows in the dark, but every few seconds it fades until it's almost invisible. While it's see-through it won't notice your bait, and if it's on your hook, reeling does nothing, so wait for it to shine again. It is big, shy and hard to land.
 
 The fish log shows every place you have reached and how many kinds you have found there.
 
@@ -133,15 +135,50 @@ Press **Menu** (on the lake) or **Save & reset** (on the start screen) to:
 
 ## Music
 
-The game plays background music, *Whiskers and Ripples*. Turn it off any time in the **Menu**.
+Each place can have its own background music. Maple River plays *Casting at the Bend*, the Luminous Cave plays *Beneath the Hollowed Earth*, and the other places play *Whiskers and Ripples*. When you travel, one track fades into the next. Turn music off any time in the **Menu**.
+
+To give another place its own track, put the MP3 in `assets/` and set `"music"` for that place in `data/places.js`.
 
 ## How it's made
 
-The whole game is one `index.html` file using HTML5 Canvas and plain JavaScript, plus `music.mp3` for the background music. All the pictures, including the map, are built into `index.html`. It needs no game engine and no install, and it runs on GitHub Pages.
+The game uses HTML5 Canvas and plain JavaScript, with no game engine and no install, and it runs on GitHub Pages.
+
+```
+index.html            the page and its buttons
+styles.css            colours and layout
+js/                   the game code
+  loader.js           loads the data, then the other scripts in order
+  data.js             turns the data files into the game's lists
+  world.js            the lake: creatures, places, sharks, bears, the update step
+  draw-creatures.js   drawings of every creature
+  draw-places.js      scenery, darkness and glow
+  draw-game.js        the cat in the boat, moods, drawing each frame
+  ui.js               menus, fish log, map, saving, music, start-up
+data/
+  cats.js             the five cats, their talents and fishing poses
+  creatures.js        every creature and piece of trash
+  places.js           the six places on the map
+assets/
+  cats/               the original character drawings
+  poses/              the 25 fishing poses (5 cats x 5 faces)
+  creatures/          creature drawings (the squid, and any you add)
+  map.jpg             the map
+  music.mp3           the main background music
+  music-maple.mp3     Maple River's music
+  music-cave.mp3      the Luminous Cave's music
+```
+
+To play on your own computer, unzip the folder and double-click `index.html`. Keep `assets`, `data` and `js` next to it.
+
+## Adding your own art
+
+- **Swap a picture:** replace a file in `assets/` with your own, keeping the same name and the same direction (cats facing left, creatures facing right).
+- **Draw a creature yourself:** save it as a PNG with a see-through background, facing right, for example `assets/creatures/pike.png`. Then open `data/creatures.js`, find the creature, and add a line `"image": "assets/creatures/pike.png",`. The game uses your drawing instead of the built-in one, scaled to the creature's length.
+- **Change creature stats:** points, depth, speed and how hard they pull are all in `data/creatures.js`. Add new creatures only at the end of the list, so save codes keep working.
 
 ## Credits
 
 - Cat characters and artwork: original drawings by the creator of this repo.
 - Fishing poses: a sprite sheet of the same five cats, each with five faces.
-- Squid drawing and the map: artwork supplied by the creator of this repo.
+- Squid and Crystal Axolotl drawings and the map: artwork supplied by the creator of this repo.
 - Game code: built with help from Claude, with the boat redrawn with help from ChatGPT.

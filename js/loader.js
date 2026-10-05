@@ -1,0 +1,13 @@
+// Whisker Lake · loads the data files, then the game scripts in order.
+// Plain <script> files work both on a website and when you double-click index.html.
+window.DATA={};
+(async()=>{
+  const load=src=>new Promise((ok,fail)=>{ const s=document.createElement('script'); s.src=src; s.onload=ok; s.onerror=()=>fail(src); document.body.appendChild(s); });
+  try{
+    for(const n of ['cats','creatures','places']) await load('data/'+n+'.js');
+    for(const n of ['cats','creatures','places']) DATA[n]=DATA[n].items;
+    for(const n of ['data','world','draw-creatures','draw-places','draw-game','ui']) await load('js/'+n+'.js');
+  }catch(e){
+    document.body.insertAdjacentHTML('beforeend','<p style="position:fixed;inset:auto 0 0 0;margin:0;padding:12px;background:#fff;color:#000;font:16px sans-serif">The game could not load '+e+'. Check that the assets, data and js folders sit next to index.html.</p>');
+  }
+})();
