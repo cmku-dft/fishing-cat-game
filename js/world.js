@@ -323,7 +323,7 @@ function updateHooked(dt, reeling){
   } else {
     hook.offset*=Math.pow(.2,dt);
     tension-=35*dt;
-    if(reeling) hook.L-=reelSpeed()*dt;
+    if(reeling) hook.L-=reelSpeed()*(def.heavy?.8:1)*dt;   // heavy fish come up slowly
     if(def.legend) hook.L=Math.min(MAX_L, hook.L+def.pull*.45*hooked.stam*dt);   // even resting, the Guardian pulls back
   }
   tension=clamp(tension,0,100);

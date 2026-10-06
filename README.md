@@ -99,12 +99,14 @@ Every cat has a fishing talent. Your cat stands up in the boat with the rod in i
 | Place | Creatures |
 | --- | --- |
 | Maple River | Brown Trout, Rainbow Trout, Arctic Grayling, Northern Pike, River Sculpin, Crayfish, River Mussel, Lake Sturgeon (350 points) |
-| The Luminous Cave | Blind Cavefish, Lantern Loach, Ghost Catfish, Olm, Glow Eel, Crystal Shrimp, Starlight Jellyfish, Moonstone Crab, Crystal Axolotl (760 points) |
+| The Luminous Cave | Blind Cavefish, Lantern Loach, Ghost Catfish, Olm, Glow Eel, Crystal Shrimp, Starlight Jellyfish, Moonstone Crab, Crystal Sunfish (400 points), Crystal Axolotl (760 points) |
 | The Frozen Lake | Cisco, Lake Whitefish, Arctic Char, Icefish, Burbot, Lake Trout |
 | The Ducky Stream | Stickleback, Golden Shiner, Creek Chub, Bluegill, Channel Catfish, Frog, Pond Snail |
 | The Guardian's Lake | Lotus Koi, Blossom Trout, Jade Perch, Moon Carp, Guardian Dragon (5,000 points) |
 
 **The Crystal Axolotl** is the cave's biggest prize. It glows in the dark, but every few seconds it fades until it's almost invisible. While it's see-through it won't notice your bait, and if it's on your hook, reeling does nothing, so wait for it to shine again. It is big, shy and hard to land.
+
+**The Crystal Sunfish** is big, slow and heavy. It glows in the dark, and because it's so heavy, it comes up slowly even when it's tired, so be patient.
 
 The fish log shows every place you have reached and how many kinds you have found there.
 
@@ -170,16 +172,18 @@ assets/
 
 To play on your own computer, unzip the folder and double-click `index.html`. Keep `assets`, `data` and `js` next to it.
 
+**Updating the game:** when you upload changed files, also change the version in `index.html` (it's in two places, for example `?v=2026-10-06b` → `?v=2026-10-07`). Browsers then download the new files, instead of using the old copies they saved.
+
 ## Adding your own art
 
 - **Swap a picture:** replace a file in `assets/` with your own, keeping the same name and the same direction (cats facing left, creatures facing right).
 - **Draw a creature yourself:** save it as a PNG with a see-through background, facing right, for example `assets/creatures/pike.png`. Then open `data/creatures.js`, find the creature, and add a line `"image": "assets/creatures/pike.png",`. The game uses your drawing instead of the built-in one, scaled to the creature's length.
-- **Animate a creature:** make a sprite sheet of swimming frames in a grid (see `assets/creatures/crystal_axolotl_swim.png`: 8 frames, 4 across and 2 down, each in its own equal-sized cell with empty space around it, heads lined up). Then add a `"sprite"` block to the creature in `data/creatures.js`, copying the Crystal Axolotl's and changing the numbers. The notes at the top of that file explain each one.
+- **Animate a creature:** make a sprite sheet of swimming frames in a grid (see `assets/creatures/crystal_axolotl_swim.png` or `crystal_sunfish_swim.png`: 8 frames, 4 across and 2 down, each in its own equal-sized cell with empty space around it, heads lined up). Then add a `"sprite"` block to the creature in `data/creatures.js`, copying the Crystal Axolotl's and changing the numbers. The notes at the top of that file explain each one.
 - **Change creature stats:** points, depth, speed and how hard they pull are all in `data/creatures.js`. Add new creatures only at the end of the list, so save codes keep working.
 
 ## Credits
 
 - Cat characters and artwork: original drawings by the creator of this repo.
 - Fishing poses: a sprite sheet of the same five cats, each with five faces.
-- Squid and Crystal Axolotl drawings and the map: artwork supplied by the creator of this repo.
+- Squid, Crystal Axolotl and Crystal Sunfish drawings and the map: artwork supplied by the creator of this repo.
 - Game code: built with help from Claude, with the boat redrawn with help from ChatGPT.

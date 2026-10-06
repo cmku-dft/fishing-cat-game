@@ -23,7 +23,7 @@ const areaDone = i => areaLife(AREAS[i]).every(d=>S.caught[d.id]);
 function unlockedUpTo(){ let i=0; while(i<AREAS.length-1 && areaDone(i)) i++; const o=store.get('opened',0)|0; if(i>o) store.set('opened',i); return Math.max(i,o); }
 
 // ---------- pictures ----------
-function loadImg(src){ const i=new Image(); i.src=src; return i; }
+function loadImg(src){ const i=new Image(); i.src=withV(src); return i; }
 for(const c of CATS) for(const m in c.poses) c.poses[m].img=loadImg(c.poses[m].image);
 const squidImgs = FISH_BY_ID.squid.images.map(loadImg);
 // your own creature drawings: add "image" to a creature in data/creatures.js

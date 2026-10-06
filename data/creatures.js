@@ -1,7 +1,7 @@
 // Whisker Lake · creatures. Edit the values below; keep the first line as it is.
 DATA.creatures =
 {
- "_about": "Every creature and piece of trash. ORDER MATTERS: save codes count catches in this order, so only ever add new ones at the END. Depths (min, max, minBed) and len are in world pixels (50 px = 1 m). To use your own drawing for a creature, add \"image\": \"assets/creatures/<name>.png\" (drawn facing right; its width becomes the creature length). fade: the creature turns see-through now and then (it can't see the bait or be reeled in while see-through). shy: lower = slower to notice the bait. sprite: an animated sprite sheet (used instead of image once it has loaded): cols x rows cells of w x h pixels, played left to right then top to bottom at fps; faces = which way the art looks; snout = the snout point in every cell (frames are lined up on it); len = body length in sheet pixels, which becomes the creature length.",
+ "_about": "Every creature and piece of trash. ORDER MATTERS: save codes count catches in this order, so only ever add new ones at the END. Depths (min, max, minBed) and len are in world pixels (50 px = 1 m). To use your own drawing for a creature, add \"image\": \"assets/creatures/<name>.png\" (drawn facing right; its width becomes the creature length). fade: the creature turns see-through now and then (it can't see the bait or be reeled in while see-through). shy: lower = slower to notice the bait. heavy: slow to reel in. sprite: an animated sprite sheet (used instead of image once it has loaded): cols x rows cells of w x h pixels, played left to right then top to bottom at fps; faces = which way the art looks; snout = the snout point in every cell (frames are lined up on it); len = body length in sheet pixels, which becomes the creature length; centre (optional) = the middle of the body in a cell, if it isn't level with the snout.",
  "items": [
   {
    "id": "minnow",
@@ -1418,6 +1418,41 @@ DATA.creatures =
     "h": 198,
     "snout": [16.2, 108.6],
     "len": 313
+   }
+  },
+  {
+   "id": "sunfish",
+   "area": "cave",
+   "name": "Crystal Sunfish",
+   "min": 350,
+   "max": 1000,
+   "len": 110,
+   "speed": 24,
+   "pts": 400,
+   "count": 2,
+   "pull": 115,
+   "heavy": true,
+   "thrash": [
+    0.9,
+    1.4
+   ],
+   "tired": [
+    0.8,
+    1.2
+   ],
+   "glow": "#bfe0ff",
+   "sprite": {
+    "image": "assets/creatures/crystal_sunfish_swim.png",
+    "cols": 4,
+    "rows": 2,
+    "frames": 8,
+    "fps": 10,
+    "faces": "left",
+    "w": 264,
+    "h": 294,
+    "snout": [15.6, 162.6],
+    "len": 227,
+    "centre": [129.1, 146.1]
    }
   }
  ]

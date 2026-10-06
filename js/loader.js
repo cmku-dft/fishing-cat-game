@@ -1,8 +1,11 @@
 // Whisker Lake · loads the data files, then the game scripts in order.
 // Plain <script> files work both on a website and when you double-click index.html.
 window.DATA={};
+// version from index.html (js/loader.js?v=...): added to every file so browsers don't keep using old copies
+window.WL_V=(document.currentScript && new URL(document.currentScript.src).searchParams.get('v')) || '1';
+const withV=src=>src+(src.includes('?')?'&':'?')+'v='+encodeURIComponent(WL_V);
 (async()=>{
-  const load=src=>new Promise((ok,fail)=>{ const s=document.createElement('script'); s.src=src; s.onload=ok; s.onerror=()=>fail(src); document.body.appendChild(s); });
+  const load=src=>new Promise((ok,fail)=>{ const s=document.createElement('script'); s.src=withV(src); s.onload=ok; s.onerror=()=>fail(src); document.body.appendChild(s); });
   try{
     for(const n of ['cats','creatures','places']) await load('data/'+n+'.js');
     for(const n of ['cats','creatures','places']) DATA[n]=DATA[n].items;
