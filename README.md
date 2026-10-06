@@ -174,6 +174,7 @@ To play on your own computer, unzip the folder and double-click `index.html`. Ke
 
 - **Swap a picture:** replace a file in `assets/` with your own, keeping the same name and the same direction (cats facing left, creatures facing right).
 - **Draw a creature yourself:** save it as a PNG with a see-through background, facing right, for example `assets/creatures/pike.png`. Then open `data/creatures.js`, find the creature, and add a line `"image": "assets/creatures/pike.png",`. The game uses your drawing instead of the built-in one, scaled to the creature's length.
+- **Animate a creature:** make a sprite sheet of swimming frames in a grid (see `assets/creatures/crystal_axolotl_swim.png`: 8 frames, 4 across and 2 down, each in its own equal-sized cell with empty space around it, heads lined up). Then add a `"sprite"` block to the creature in `data/creatures.js`, copying the Crystal Axolotl's and changing the numbers. The notes at the top of that file explain each one.
 - **Change creature stats:** points, depth, speed and how hard they pull are all in `data/creatures.js`. Add new creatures only at the end of the list, so save codes keep working.
 
 ## Credits

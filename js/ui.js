@@ -74,13 +74,17 @@ $('resetBtn').onclick=()=>{
 const MUSIC_VOL=.35;
 const music=new Audio(AREA.music||'assets/music.mp3'); music.loop=true; music.volume=MUSIC_VOL; music.preload='auto';
 let musicFade=0;
+// iPad and iPhone browsers ignore volume changes (volume always reads 1), so they can't fade
+const CAN_FADE=(()=>{ try{ const a=new Audio(); a.volume=.5; return Math.abs(a.volume-.5)<.01; }catch(e){ return false; } })();
 function setAreaMusic(){
   const want=AREA.music||'assets/music.mp3';
   if(music.src.endsWith(want)) return;
   const wasPlaying=!music.paused; clearInterval(musicFade);
-  if(!wasPlaying){ music.src=want; return; }
-  musicFade=setInterval(()=>{ music.volume=Math.max(0,music.volume-.04);
-    if(music.volume<=0){ clearInterval(musicFade); music.src=want; music.volume=MUSIC_VOL; playMusic(); } },50);
+  const swap=()=>{ music.src=want; music.volume=MUSIC_VOL; if(wasPlaying) playMusic(); };
+  // no fade: swap at once, still inside the tap on "Travel here", which iPad needs to allow the new song to play
+  if(!wasPlaying || !CAN_FADE){ swap(); return; }
+  // fade out over half a second (counted in steps, so it can't get stuck), then start the new song
+  let n=0; musicFade=setInterval(()=>{ n++; music.volume=MUSIC_VOL*Math.max(0,1-n/10); if(n>=10){ clearInterval(musicFade); swap(); } },50);
 }
 S.music=store.get('music',true);
 function playMusic(){ if(S.music && !document.hidden){ const p=music.play(); if(p&&p.catch) p.catch(()=>{}); } }

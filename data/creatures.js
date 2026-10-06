@@ -1,7 +1,7 @@
 // Whisker Lake · creatures. Edit the values below; keep the first line as it is.
 DATA.creatures =
 {
- "_about": "Every creature and piece of trash. ORDER MATTERS: save codes count catches in this order, so only ever add new ones at the END. Depths (min, max, minBed) and len are in world pixels (50 px = 1 m). To use your own drawing for a creature, add \"image\": \"assets/creatures/<name>.png\" (drawn facing right; its width becomes the creature length). fade: the creature turns see-through now and then (it can't see the bait or be reeled in while see-through). shy: lower = slower to notice the bait.",
+ "_about": "Every creature and piece of trash. ORDER MATTERS: save codes count catches in this order, so only ever add new ones at the END. Depths (min, max, minBed) and len are in world pixels (50 px = 1 m). To use your own drawing for a creature, add \"image\": \"assets/creatures/<name>.png\" (drawn facing right; its width becomes the creature length). fade: the creature turns see-through now and then (it can't see the bait or be reeled in while see-through). shy: lower = slower to notice the bait. sprite: an animated sprite sheet (used instead of image once it has loaded): cols x rows cells of w x h pixels, played left to right then top to bottom at fps; faces = which way the art looks; snout = the snout point in every cell (frames are lined up on it); len = body length in sheet pixels, which becomes the creature length.",
  "items": [
   {
    "id": "minnow",
@@ -1406,7 +1406,19 @@ DATA.creatures =
    "glow": "#a8f4ff",
    "fade": true,
    "shy": 0.4,
-   "image": "assets/creatures/crystal_axolotl.png"
+   "image": "assets/creatures/crystal_axolotl.png",
+   "sprite": {
+    "image": "assets/creatures/crystal_axolotl_swim.png",
+    "cols": 4,
+    "rows": 2,
+    "frames": 8,
+    "fps": 10,
+    "faces": "left",
+    "w": 348,
+    "h": 198,
+    "snout": [16.2, 108.6],
+    "len": 313
+   }
   }
  ]
 }

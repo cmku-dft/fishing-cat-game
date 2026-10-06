@@ -184,14 +184,34 @@ function fin(c,pts,color){ c.fillStyle=color; c.beginPath(); c.moveTo(pts[0],pts
 
 // fish drawn at origin, facing +x, total body length L
 const SPECIAL_DRAW={crayfish:drawCrayfish, mussel:drawMussel, snail:drawSnail, frog:drawFrog, duck:drawDuck, otter:drawOtter, olm:drawOlm, gloweel:drawGlowEel, mooncrab:drawCrab, dragon:drawDragon};
+// see-through fading for creatures that do that: faint body plus a few drifting sparkles
+function fadeSparkles(c,def,L,h,tt,vis){
+  if(def.fade && vis<.6){ c.globalAlpha=.25*(1-vis); c.fillStyle='#d8fbff'; for(let i=0;i<6;i++){ ellipse(c,-L*.4+((i*37+tt*20)%100)/100*L*.8,-h*.3+((i*53)%100)/100*h*.6,1.6,1.6); c.fill(); } }
+}
+// animated sprite sheet: one cell per frame, lined up on the snout, flipped so it faces +x like every other drawing
+function drawSprite(c,def,sp,L,tt,o){
+  const f=o.f||{}, vis=f.vis??1, k=L/sp.len;
+  const fr=o.still ? 0 : Math.floor(((tt*sp.fps)%sp.frames+sp.frames)%sp.frames);
+  const sx=(fr%sp.cols)*sp.w, sy=Math.floor(fr/sp.cols)*sp.h;
+  // body centre = halfway along the body from the snout
+  const cx=sp.snout[0]+sp.len/2, cy=sp.snout[1];
+  c.save();
+  if(sp.faces==='left') c.scale(-1,1);
+  c.globalAlpha*= .07+.93*vis;
+  c.drawImage(sp.img, sx,sy,sp.w,sp.h, -cx*k,-cy*k, sp.w*k,sp.h*k);
+  c.restore();
+  c.save(); fadeSparkles(c,def,L,L*.27,tt,vis); c.restore();
+}
 function drawFish(c,def,L,tt,o={}){
+  const sp=def.sprite;
+  if(sp && sp.img && sp.img.complete && sp.img.naturalWidth) return drawSprite(c,def,sp,L,tt,o);
   if(def.img && def.img.complete && def.img.naturalWidth){
     // your own drawings: a gentle swimming sway, and see-through fading for creatures that do that
     const h=L*def.img.naturalHeight/def.img.naturalWidth, f=o.f||{}, vis=f.vis??1, sw=Math.sin(tt*(o.fast?8:3));
     c.save(); c.rotate(sw*.05); c.scale(1+sw*.02,1-sw*.02);
     c.globalAlpha*= .07+.93*vis;
     c.drawImage(def.img,-L/2,-h/2,L,h);
-    if(def.fade && vis<.6){ c.globalAlpha=.25*(1-vis); c.fillStyle='#d8fbff'; for(let i=0;i<6;i++){ ellipse(c,-L*.4+((i*37+tt*20)%100)/100*L*.8,-h*.3+((i*53)%100)/100*h*.6,1.6,1.6); c.fill(); } }
+    fadeSparkles(c,def,L,h,tt,vis);
     c.restore(); return; }
   if(def.look) return drawGeneric(c,def,L,tt,o);
   if(SPECIAL_DRAW[def.id]) return SPECIAL_DRAW[def.id](c,L,tt,o);
@@ -319,7 +339,7 @@ function fishThumb(def,w,h,silhouette){
   const L=Math.min(w*.82/extra, h*.88/hf);
   x.scale(d,d); const cx={swordfish:-L*.2,shrimp:-L*.15,crystalshrimp:-L*.15,pike:-L*.08,sturgeon:-L*.1,lobster:-L*.05}[def.id]; const cy={angler:h*.12,jelly:-h*.08,glowjelly:-h*.08,grayling:h*.15,clam:h*.12,oyster:h*.2,bag:h*.05}[def.id]||0;
   x.translate(w/2+(cx??(def.move?0:L*.08)),h/2+cy);
-  drawFish(x,def,L,0.6,{sparkle:false,open:def.id==='oyster'?.8:0,f:{pearl:def.id==='oyster'}});
+  drawFish(x,def,L,0.6,{still:true,sparkle:false,open:def.id==='oyster'?.8:0,f:{pearl:def.id==='oyster'}});
   if(silhouette){ x.setTransform(1,0,0,1,0,0); x.globalCompositeOperation='source-atop'; x.fillStyle='#4a3a2c'; x.fillRect(0,0,c.width,c.height); }
   return c;
 }

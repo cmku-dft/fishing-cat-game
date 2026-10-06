@@ -28,3 +28,5 @@ for(const c of CATS) for(const m in c.poses) c.poses[m].img=loadImg(c.poses[m].i
 const squidImgs = FISH_BY_ID.squid.images.map(loadImg);
 // your own creature drawings: add "image" to a creature in data/creatures.js
 for(const f of FISH) if(f.image) f.img=loadImg(f.image);
+// animated sprite sheets: add "sprite" to a creature (see the notes at the top of data/creatures.js)
+for(const f of FISH) if(f.sprite) f.sprite.img=loadImg(f.sprite.image);
