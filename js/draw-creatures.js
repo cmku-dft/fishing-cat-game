@@ -191,14 +191,26 @@ function fadeSparkles(c,def,L,h,tt,vis){
 // animated sprite sheet: one cell per frame, lined up on the snout, flipped so it faces +x like every other drawing
 function drawSprite(c,def,sp,L,tt,o){
   const f=o.f||{}, vis=f.vis??1, k=L/sp.len;
-  const fr=o.still ? 0 : Math.floor(((tt*sp.fps)%sp.frames+sp.frames)%sp.frames);
+  const pos=o.still ? 0 : ((tt*sp.fps)%sp.frames+sp.frames)%sp.frames, fr=Math.floor(pos);
   const sx=(fr%sp.cols)*sp.w, sy=Math.floor(fr/sp.cols)*sp.h;
+  // blend: hold each frame, then fade smoothly into the next one (hides jumps between hand-drawn frames)
+  let img=sp.img, ix=sx, iy=sy;
+  const u=sp.blend && !o.still ? Math.min(1,Math.max(0,(pos-fr-.35)/.65)) : 0, mix=u*u*(3-2*u);
+  if(mix>.01){
+    const nx=((fr+1)%sp.frames), bx=(nx%sp.cols)*sp.w, by=Math.floor(nx/sp.cols)*sp.h;
+    const buf=sp.buf||(sp.buf=document.createElement('canvas')); if(buf.width!==sp.w){ buf.width=sp.w; buf.height=sp.h; }
+    const b=buf.getContext('2d'); b.clearRect(0,0,sp.w,sp.h);
+    b.globalCompositeOperation='source-over'; b.globalAlpha=1-mix; b.drawImage(sp.img,sx,sy,sp.w,sp.h,0,0,sp.w,sp.h);
+    b.globalCompositeOperation='lighter'; b.globalAlpha=mix; b.drawImage(sp.img,bx,by,sp.w,sp.h,0,0,sp.w,sp.h);
+    b.globalCompositeOperation='source-over'; b.globalAlpha=1;
+    img=buf; ix=0; iy=0;
+  }
   // body centre = halfway along the body from the snout
   const cx=sp.centre?sp.centre[0]:sp.snout[0]+sp.len/2, cy=sp.centre?sp.centre[1]:sp.snout[1];
   c.save();
   if(sp.faces==='left') c.scale(-1,1);
   c.globalAlpha*= .07+.93*vis;
-  c.drawImage(sp.img, sx,sy,sp.w,sp.h, -cx*k,-cy*k, sp.w*k,sp.h*k);
+  c.drawImage(img, ix,iy,sp.w,sp.h, -cx*k,-cy*k, sp.w*k,sp.h*k);
   c.restore();
   c.save(); fadeSparkles(c,def,L,L*.27,tt,vis); c.restore();
 }
@@ -336,7 +348,7 @@ function drawTurtle(c,def,L,tt,o){
 function fishThumb(def,w,h,silhouette){
   const c=document.createElement('canvas'), d=2; c.width=w*d; c.height=h*d; const x=c.getContext('2d');
   const extra={crayfish:1.6,mussel:1.05,snail:1.2,frog:1.5,olm:1.1,gloweel:1.05,crystalshrimp:1.5,glowjelly:1.0,mooncrab:1.3,dragon:1.2,sturgeon:1.45,pike:1.4,squid:1.05,shark:1.35,turtle1:1.45,turtle2:1.45,turtle3:1.5,swordfish:1.55,angler:1.35,eel:1.05,puffer:1.3,koi:1.35,shrimp:1.5,lobster:1.6,jelly:1.0,clam:1.05,oyster:1.15,boot:1.15,can:1.2,tire:1.0,bottle:1.0,bag:1.0}[def.id]||1.3;
-  const hf={crayfish:.9,mussel:.6,snail:1.0,frog:.8,olm:.35,gloweel:.32,crystalshrimp:.9,glowjelly:1.25,mooncrab:1.0,dragon:.5,sturgeon:.45,pike:.45,grayling:.85,bluegill:.9,jadeperch:.9,lotuskoi:.7,mooncarp:.7,sculpin:.6,squid:.95,sunfish:1.15,shark:.55,turtle1:.8,turtle2:.8,turtle3:.8,perch:1.05,puffer:1.25,angler:1.35,swordfish:.75,koi:.85,salmon:.7,eel:.3,shrimp:.9,lobster:.95,jelly:1.25,clam:1.0,oyster:1.35,boot:1.1,can:1.0,tire:1.05,bottle:1.15,bag:1.4}[def.id]||.55;
+  const hf={crayfish:.9,mussel:.6,snail:1.0,frog:.8,olm:.35,gloweel:.32,crystalshrimp:.9,glowjelly:1.25,mooncrab:1.0,dragon:.5,sturgeon:.45,pike:.45,grayling:.85,bluegill:.9,jadeperch:.9,lotuskoi:.7,mooncarp:.7,sculpin:.6,squid:.95,sunfish:1.15,butterfly:.8,shark:.55,turtle1:.8,turtle2:.8,turtle3:.8,perch:1.05,puffer:1.25,angler:1.35,swordfish:.75,koi:.85,salmon:.7,eel:.3,shrimp:.9,lobster:.95,jelly:1.25,clam:1.0,oyster:1.35,boot:1.1,can:1.0,tire:1.05,bottle:1.15,bag:1.4}[def.id]||.55;
   const L=Math.min(w*.82/extra, h*.88/hf);
   x.scale(d,d); const cx={swordfish:-L*.2,shrimp:-L*.15,crystalshrimp:-L*.15,pike:-L*.08,sturgeon:-L*.1,lobster:-L*.05}[def.id]; const cy={angler:h*.12,jelly:-h*.08,glowjelly:-h*.08,grayling:h*.15,clam:h*.12,oyster:h*.2,bag:h*.05}[def.id]||0;
   x.translate(w/2+(cx??(def.move?0:L*.08)),h/2+cy);

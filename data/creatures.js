@@ -1,7 +1,7 @@
 // Whisker Lake · creatures. Edit the values below; keep the first line as it is.
 DATA.creatures =
 {
- "_about": "Every creature and piece of trash. ORDER MATTERS: save codes count catches in this order, so only ever add new ones at the END. Depths (min, max, minBed) and len are in world pixels (50 px = 1 m). To use your own drawing for a creature, add \"image\": \"assets/creatures/<name>.png\" (drawn facing right; its width becomes the creature length). fade: the creature turns see-through now and then (it can't see the bait or be reeled in while see-through). shy: lower = slower to notice the bait. heavy: slow to reel in. sprite: an animated sprite sheet (used instead of image once it has loaded): cols x rows cells of w x h pixels, played left to right then top to bottom at fps; faces = which way the art looks; snout = the snout point in every cell (frames are lined up on it); len = body length in sheet pixels, which becomes the creature length; centre (optional) = the middle of the body in a cell, if it isn't level with the snout.",
+ "_about": "Every creature and piece of trash. ORDER MATTERS: save codes count catches in this order, so only ever add new ones at the END. Depths (min, max, minBed) and len are in world pixels (50 px = 1 m). To use your own drawing for a creature, add \"image\": \"assets/creatures/<name>.png\" (drawn facing right; its width becomes the creature length). fade: the creature turns see-through now and then (it can't see the bait or be reeled in while see-through). shy: lower = slower to notice the bait. heavy: slow to reel in. sprite: an animated sprite sheet (used instead of image once it has loaded): cols x rows cells of w x h pixels, played left to right then top to bottom at fps; blend: true = fade smoothly from each frame into the next; faces = which way the art looks; snout = the snout point in every cell (frames are lined up on it); len = body length in sheet pixels, which becomes the creature length; centre (optional) = the middle of the body in a cell, if it isn't level with the snout.",
  "items": [
   {
    "id": "minnow",
@@ -1446,13 +1446,49 @@ DATA.creatures =
     "cols": 4,
     "rows": 2,
     "frames": 8,
-    "fps": 10,
+    "fps": 7,
+    "blend": true,
     "faces": "left",
-    "w": 264,
-    "h": 294,
-    "snout": [15.6, 162.6],
-    "len": 227,
-    "centre": [129.1, 146.1]
+    "w": 258,
+    "h": 276,
+    "snout": [16.2, 142.2],
+    "len": 208,
+    "centre": [120.0, 138.3]
+   }
+  },
+  {
+   "id": "butterfly",
+   "area": "guardian",
+   "name": "Butterflyfish",
+   "min": 100,
+   "max": 650,
+   "len": 52,
+   "speed": 45,
+   "pts": 100,
+   "count": 1,
+   "shy": 0.7,
+   "pull": 65,
+   "thrash": [
+    0.5,
+    0.9
+   ],
+   "tired": [
+    0.9,
+    1.4
+   ],
+   "sprite": {
+    "image": "assets/creatures/butterflyfish_swim.png",
+    "cols": 4,
+    "rows": 2,
+    "frames": 8,
+    "fps": 8,
+    "blend": true,
+    "faces": "left",
+    "w": 288,
+    "h": 225,
+    "snout": [15.6, 133.2],
+    "len": 248,
+    "centre": [139.5, 112.2]
    }
   }
  ]

@@ -102,7 +102,7 @@ Every cat has a fishing talent. Your cat stands up in the boat with the rod in i
 | The Luminous Cave | Blind Cavefish, Lantern Loach, Ghost Catfish, Olm, Glow Eel, Crystal Shrimp, Starlight Jellyfish, Moonstone Crab, Crystal Sunfish (400 points), Crystal Axolotl (760 points) |
 | The Frozen Lake | Cisco, Lake Whitefish, Arctic Char, Icefish, Burbot, Lake Trout |
 | The Ducky Stream | Stickleback, Golden Shiner, Creek Chub, Bluegill, Channel Catfish, Frog, Pond Snail |
-| The Guardian's Lake | Lotus Koi, Blossom Trout, Jade Perch, Moon Carp, Guardian Dragon (5,000 points) |
+| The Guardian's Lake | Lotus Koi, Blossom Trout, Jade Perch, Moon Carp, Butterflyfish (100 points, only one at a time), Guardian Dragon (5,000 points) |
 
 **The Crystal Axolotl** is the cave's biggest prize. It glows in the dark, but every few seconds it fades until it's almost invisible. While it's see-through it won't notice your bait, and if it's on your hook, reeling does nothing, so wait for it to shine again. It is big, shy and hard to land.
 
@@ -185,5 +185,5 @@ To play on your own computer, unzip the folder and double-click `index.html`. Ke
 
 - Cat characters and artwork: original drawings by the creator of this repo.
 - Fishing poses: a sprite sheet of the same five cats, each with five faces.
-- Squid, Crystal Axolotl and Crystal Sunfish drawings and the map: artwork supplied by the creator of this repo.
+- Squid, Crystal Axolotl, Crystal Sunfish and Butterflyfish drawings and the map: artwork supplied by the creator of this repo.
 - Game code: built with help from Claude, with the boat redrawn with help from ChatGPT.
