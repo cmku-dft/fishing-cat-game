@@ -98,8 +98,8 @@ DATA.places =
     55.2
    ],
    "blurb": "A glowing cave behind the waterfall. Shy fish hide in holes deep down.",
-   "help": "drop your hook next to a hole deep down and keep still",
-   "tip": "Shy fish hide in the holes deep down. Drop your hook near a hole and keep still.",
+   "help": "drop your hook next to a hole deep down and keep still · watch for falling rocks · B or Bust rock smashes boulders in your way",
+   "tip": "Shy fish hide in the holes deep down. Drop your hook near a hole and keep still. Watch out for falling rocks!",
    "music": "assets/music-cave.mp3"
   },
   {

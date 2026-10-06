@@ -105,3 +105,9 @@ button:focus-visible{outline:3px solid #ffd76a;outline-offset:2px}
 .go.small{font-size:17px;padding:8px 16px}
 .dexhead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* rock-buster button (the Luminous Cave) */
+#bustBtn{position:absolute;left:50%;transform:translateX(-50%);bottom:64px;z-index:6;font-size:20px;padding:10px 26px;background:#7a5cc8;box-shadow:0 0 0 3px rgba(255,255,255,.35),0 6px 18px rgba(0,0,0,.35);animation:bustPulse 1.2s ease-in-out infinite}
+#bustBtn[hidden]{display:none}
+@keyframes bustPulse{50%{box-shadow:0 0 0 6px rgba(190,170,255,.45),0 6px 18px rgba(0,0,0,.35)}}
+@media (pointer:coarse){#bustBtn{bottom:calc(92px + env(safe-area-inset-bottom,0px))}}

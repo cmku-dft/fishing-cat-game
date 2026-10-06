@@ -180,6 +180,7 @@ function glowList(){
     if(AS.holes) for(const h of AS.holes) out.push([h.x+h.dir*14,h.y,60,'#78ffdc']);
     out.push([SCENERY.fallX,-200,300,'#b4ebff']);
   }
+  if(typeof rockGlows==='function') out.push(...rockGlows());
   return out;
 }
 function drawLighting(){

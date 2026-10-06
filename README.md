@@ -31,7 +31,7 @@ Press **Map** to see where you are. You start at Whiskers Lake. When you have ca
 | --- | --- | --- |
 | 1 | Whiskers Lake | Sharks, squids and sea turtles (see below). |
 | 2 | Maple River | A cold, fast river. The current pulls your boat downstream, and bears fish in the shallows near both shores. Get too close and a bear swipes at your boat, which ends the trip. |
-| 3 | The Luminous Cave | Dark, with glowing crystals. Shy fish hide in holes deep down: drop your hook next to a hole and keep perfectly still until they come out. |
+| 3 | The Luminous Cave | Dark, with glowing crystals. Shy fish hide in holes deep down: drop your hook next to a hole and keep perfectly still until they come out. Rocks and crystals fall from the ceiling (see below). |
 | 4 | The Frozen Lake | The lake is frozen. Hold ↓ (Drop) to smash a hole in the ice, then fish through it. Reel in before you move. |
 | 5 | The Ducky Stream | A shallow, sunny stream. Ducks dive for fish, and frogs and otters try to steal the fish on your hook. |
 | 6 | The Guardian's Lake | A quiet lake among blossom trees. Now and then the legendary Guardian Dragon appears deep down. It is worth 5,000 points but fights for a long time: reel only while it rests. |
@@ -56,6 +56,14 @@ Squids come in different sizes and three colours: pink, purple and aqua. When yo
 ## Sea turtles
 
 Three kinds of sea turtle swim in the lake. They hunt jellyfish and eat them. You can catch turtles too.
+
+## Falling rocks in the Luminous Cave
+
+Rocks and crystals sometimes fall from the cave ceiling. An amber ring on the water (or an amber marker at the top of the screen when your hook is deep) shows where one will land.
+
+- **Small rocks** splash in and sink. If one hits your line while a fish is hooked, it knocks the fish off. Fish near the splash swim away.
+- **Big rocks and crystals** come with a rumble. They land sticking out of the water, and your boat can't row past them.
+- **Rock-buster:** row up to a boulder and press **Bust rock** (or **B** on a keyboard) to smash it.
 
 ## The cats
 
@@ -156,6 +164,7 @@ js/                   the game code
   draw-places.js      scenery, darkness and glow
   draw-game.js        the cat in the boat, moods, drawing each frame
   ui.js               menus, fish log, map, saving, music, start-up
+  rockfall.js         falling rocks and boulders in the Luminous Cave, and the rock-buster
 data/
   cats.js             the five cats, their talents and fishing poses
   creatures.js        every creature and piece of trash

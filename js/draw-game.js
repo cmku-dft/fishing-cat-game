@@ -121,6 +121,7 @@ function render(){
   if(hook.y>20){ ctx.fillStyle='#d8433a'; ellipse(ctx,bx,byy,6,6); ctx.fill(); ctx.fillStyle='#fff'; ctx.fillRect(bx-6,byy-1,12,3); }
 
   drawSurfaceBack(L,R);
+  if(typeof drawRockWalls==='function') drawRockWalls();
   drawBoat();
 
   // front water band over hull
@@ -130,6 +131,7 @@ function render(){
 
   // splash
   for(const p of parts){ if(p.k!=='s') continue; ctx.fillStyle='rgba(230,248,255,'+(p.life/p.max)+')'; ellipse(ctx,p.x,p.y,p.r,p.r); ctx.fill(); }
+  if(typeof drawFallingRocks==='function') drawFallingRocks();
 
   drawWeather();
   drawLighting();

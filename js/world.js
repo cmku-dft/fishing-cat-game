@@ -484,6 +484,7 @@ function update(dt){
   boat.vx=clamp(boat.vx,-maxV*(slow?.5:1),maxV*(slow?.5:1));
   boat.x+=boat.vx*dt;
   if(boat.x<160){boat.x=160;boat.vx=0} if(boat.x>WORLD_W-160){boat.x=WORLD_W-160;boat.vx=0}
+  if(typeof blockBoat==='function') blockBoat();   // fallen boulders in the cave (rockfall.js)
   if(boat.vx>25) boat.facing=1; else if(boat.vx<-25) boat.facing=-1;
   boat.y=AREA.frozen?-24:wave(boat.x,t); boat.tilt=AREA.frozen?0:(wave(boat.x+40,t)-wave(boat.x-40,t))/80;
   const tp=sprTip(currentMood()), ra=boat.tilt*.6, rtx=-boat.facing*tp[0], rty=tp[1]-14;
@@ -522,6 +523,7 @@ function update(dt){
   popT-=dt; if(popT<=0){ popT=1; populate(true); }
   maybeStartAttack(dt);
   if(S.mode==='play') updateBears(dt);
+  if(typeof updateRockfall==='function') updateRockfall(dt);   // falling rocks in the cave (rockfall.js)
   if(AREA.id==='maple' && Math.random()<dt*1.6) parts.push({k:'leaf',x:cam.x+viewW+20,y:0,rot:rand(0,6),c:['#d2462c','#e8782f','#f0a53a'][Math.floor(rand(0,3))],life:40,max:40});
   if(attack){ alarmT-=dt; if(alarmT<=0){ alarmT=.7; sfx.alarm(); } }
 
