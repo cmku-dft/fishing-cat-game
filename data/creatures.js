@@ -1412,12 +1412,14 @@ DATA.creatures =
     "cols": 4,
     "rows": 2,
     "frames": 8,
-    "fps": 10,
+    "fps": 8,
+    "blend": true,
     "faces": "left",
     "w": 348,
-    "h": 198,
-    "snout": [16.2, 108.6],
-    "len": 313
+    "h": 183,
+    "snout": [15.6, 100.2],
+    "len": 312,
+    "centre": [171.6, 102.8]
    }
   },
   {
