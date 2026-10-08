@@ -1,7 +1,7 @@
 // Whisker Lake · cats. Edit the values below; keep the first line as it is.
 DATA.cats =
 {
- "_about": "The five cats. mods: talent multipliers (reel, tension, boat, notice, rare). poses: the 5 fishing faces; anchor = boat centre and keel, rodTip = end of the rod, both in pixels of the pose picture. anims (optional): sprite-sheet animations that replace a pose: idle (waiting, calm), fight (fish on the line), catch (plays once after a catch), sleepy (no input for 9+ s), shocked (shark, bear, thief, jellyfish), paddle (rowing with the line reeled in; rodTips copy the idle rod tip because there is no rod; front = paddle-only overlay drawn in front of the hull, dips = blade tip per frame for splashes). One row of cells w x h; anchor is the same in every cell; rodTips = rod end per frame; seq = optional frame order; head = shift of the mood effects.",
+ "_about": "The five cats. mods: talent multipliers (reel, tension, boat, notice, rare). poses: the 5 fishing faces; anchor = boat centre and keel, rodTip = end of the rod, both in pixels of the pose picture. anims (optional): sprite-sheet animations that replace a pose: idle (waiting, calm), fight (fish on the line), catch (plays once after a catch), sleepy (no input for 9+ s), shocked (shark, bear, thief, jellyfish), paddle (rowing with the line reeled in; rodTips copy the idle rod tip because there is no rod; front = paddle-only overlay drawn in front of the hull, dips = blade tip per frame for splashes). Any anim may have \"scale\" (default 1): extra size factor around the anchor, used to match the waiting size. One row of cells w x h; anchor is the same in every cell; rodTips = rod end per frame; seq = optional frame order; head = shift of the mood effects.",
  "items": [
   {
    "id": "sapstar",
@@ -293,19 +293,19 @@ DATA.cats =
      ],
      "rodTips": [
       [
-       -9.4,
+       -9.400000000000006,
        81.5
       ],
       [
-       -9.4,
+       -9.400000000000006,
        81.5
       ],
       [
-       -9.4,
+       -9.400000000000006,
        81.5
       ],
       [
-       -9.4,
+       -9.400000000000006,
        81.5
       ]
      ],
@@ -316,19 +316,20 @@ DATA.cats =
      "front": "assets/poses/sapstar_paddlefront.png",
      "dips": [
       [
-       46.8,
-       227
+       15.8,
+       222
       ],
       [
-       121.5,
-       227
+       118.5,
+       234
       ],
       [
-       175.4,
-       227
+       195.4,
+       231
       ],
       null
-     ]
+     ],
+     "scale": 0.9
     }
    }
   },
@@ -622,19 +623,19 @@ DATA.cats =
      ],
      "rodTips": [
       [
-       10.8,
+       10.800000000000011,
        74.9
       ],
       [
-       10.8,
+       10.800000000000011,
        74.9
       ],
       [
-       10.8,
+       10.800000000000011,
        74.9
       ],
       [
-       10.8,
+       10.800000000000011,
        74.9
       ]
      ],
@@ -645,19 +646,20 @@ DATA.cats =
      "front": "assets/poses/leafpelt_paddlefront.png",
      "dips": [
       [
-       24.4,
-       216
+       17.4,
+       210
       ],
       [
-       131.3,
-       211
+       120.3,
+       217
       ],
       [
-       175.1,
-       211
+       199.1,
+       217
       ],
       null
-     ]
+     ],
+     "scale": 0.935
     }
    }
   },
@@ -951,20 +953,20 @@ DATA.cats =
      ],
      "rodTips": [
       [
-       0.8,
-       108.7
+       0.8000000000000114,
+       108.69999999999999
       ],
       [
-       0.8,
-       108.7
+       0.8000000000000114,
+       108.69999999999999
       ],
       [
-       0.8,
-       108.7
+       0.8000000000000114,
+       108.69999999999999
       ],
       [
-       0.8,
-       108.7
+       0.8000000000000114,
+       108.69999999999999
       ]
      ],
      "head": [
@@ -974,19 +976,20 @@ DATA.cats =
      "front": "assets/poses/haretail_paddlefront.png",
      "dips": [
       [
-       20.2,
-       242
-      ],
-      [
-       130.6,
+       19.2,
        235
       ],
       [
-       169.0,
-       235
+       115.6,
+       243
+      ],
+      [
+       188.0,
+       243
       ],
       null
-     ]
+     ],
+     "scale": 0.895
     }
    }
   },
@@ -1281,19 +1284,19 @@ DATA.cats =
      "rodTips": [
       [
        -18.0,
-       68.2
+       68.19999999999999
       ],
       [
        -18.0,
-       68.2
+       68.19999999999999
       ],
       [
        -18.0,
-       68.2
+       68.19999999999999
       ],
       [
        -18.0,
-       68.2
+       68.19999999999999
       ]
      ],
      "head": [
@@ -1303,19 +1306,20 @@ DATA.cats =
      "front": "assets/poses/eelfur_paddlefront.png",
      "dips": [
       [
-       21.7,
-       251
+       33.7,
+       241
       ],
       [
-       149.5,
-       235
+       122.5,
+       246
       ],
       [
-       163.2,
-       235
+       176.2,
+       245
       ],
       null
-     ]
+     ],
+     "scale": 0.925
     }
    }
   },
@@ -1632,19 +1636,20 @@ DATA.cats =
      "front": "assets/poses/squirrelstripe_paddlefront.png",
      "dips": [
       [
-       21.1,
+       24.1,
+       243
+      ],
+      [
+       126.0,
        250
       ],
       [
-       140.0,
-       243
-      ],
-      [
-       178.7,
-       243
+       188.7,
+       250
       ],
       null
-     ]
+     ],
+     "scale": 0.94
     }
    }
   }

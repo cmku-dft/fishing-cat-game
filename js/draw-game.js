@@ -29,11 +29,11 @@ function animFor(mood){
 }
 function sprFor(mood){
   const an=animFor(mood);
-  if(an){ const a=an.a, tip=a.rodTips[an.fr]; return {anim:a,fr:an.fr,front:a.frontImg,img:a.img,sx:(an.fr%a.cols)*a.w,sy:Math.floor(an.fr/a.cols)*a.h,w:a.w,h:a.h,ax:a.anchor[0],ay:a.anchor[1],tx:tip[0],ty:tip[1],head:a.head||[0,0]}; }
-  const p=CATS[S.cat].poses[MOOD_SPRITE[mood]||'focused']; return {img:p.img,sx:0,sy:0,w:p.w,h:p.h,ax:p.anchor[0],ay:p.anchor[1],tx:p.rodTip[0],ty:p.rodTip[1],head:[0,0]};
+  if(an){ const a=an.a, tip=a.rodTips[an.fr]; return {k:SPR_K*(a.scale||1),anim:a,fr:an.fr,front:a.frontImg,img:a.img,sx:(an.fr%a.cols)*a.w,sy:Math.floor(an.fr/a.cols)*a.h,w:a.w,h:a.h,ax:a.anchor[0],ay:a.anchor[1],tx:tip[0],ty:tip[1],head:a.head||[0,0]}; }
+  const p=CATS[S.cat].poses[MOOD_SPRITE[mood]||'focused']; return {k:SPR_K,img:p.img,sx:0,sy:0,w:p.w,h:p.h,ax:p.anchor[0],ay:p.anchor[1],tx:p.rodTip[0],ty:p.rodTip[1],head:[0,0]};
 }
 // rod tip in the boat frame for a cat facing left
-function sprTip(mood){ const p=sprFor(mood); return [(p.tx-p.ax)*SPR_K, (p.ty-p.ay)*SPR_K+SPR_KEEL]; }
+function sprTip(mood){ const p=sprFor(mood); return [(p.tx-p.ax)*p.k, (p.ty-p.ay)*p.k+SPR_KEEL]; }
 const INK='#2a1b14';
 function heart(c,x,y,r,col){ c.fillStyle=col; c.beginPath(); c.moveTo(x,y+r); c.bezierCurveTo(x-r*2,y-r*.4,x-r*.8,y-r*2,x,y-r*.6); c.bezierCurveTo(x+r*.8,y-r*2,x+r*2,y-r*.4,x,y+r); c.fill(); }
 // little mood effects around the head. (hx,hy) head centre in the boat frame, fr = side the cat faces (-1 left, 1 right)
@@ -222,7 +222,7 @@ let lastPaddleFr=-1;
 function paddleSplash(p,f){
   const fr = p.anim && p.anim.dips ? p.fr : -1;
   if(fr!==lastPaddleFr && fr===1 && p.anim.dips[1]){
-    const d=p.anim.dips[1], x=boat.x-f*(d[0]-p.ax)*SPR_K, y=wave(x,t);
+    const d=p.anim.dips[1], x=boat.x-f*(d[0]-p.ax)*p.k, y=wave(x,t);
     for(let i=0;i<6;i++) parts.push({x:x+rand(-6,6),y:y,vx:rand(-50,50)-f*30,vy:rand(-140,-60),life:.5,max:.5,r:rand(1.5,2.8),k:'s'});
   }
   lastPaddleFr=fr;
@@ -238,11 +238,11 @@ function drawBoat(){
   ctx.translate(jx+tug, hop);
   drawDetailedHull(false);
   if(p.img.complete && p.img.naturalWidth){
-    ctx.drawImage(p.img, p.sx, p.sy, p.w, p.h, -p.ax*SPR_K, SPR_KEEL-p.ay*SPR_K, p.w*SPR_K, p.h*SPR_K);
+    ctx.drawImage(p.img, p.sx, p.sy, p.w, p.h, -p.ax*p.k, SPR_KEEL-p.ay*p.k, p.w*p.k, p.h*p.k);
   }
   drawDetailedHull(true);
   // paddle blade in front of the hull, so it dips into the water
-  if(p.front && p.front.complete && p.front.naturalWidth) ctx.drawImage(p.front, p.sx, p.sy, p.w, p.h, -p.ax*SPR_K, SPR_KEEL-p.ay*SPR_K, p.w*SPR_K, p.h*SPR_K);
+  if(p.front && p.front.complete && p.front.naturalWidth) ctx.drawImage(p.front, p.sx, p.sy, p.w, p.h, -p.ax*p.k, SPR_KEEL-p.ay*p.k, p.w*p.k, p.h*p.k);
   ctx.restore();
   paddleSplash(p,f);
   catFx(ctx, -f*(SPR_HEAD[0]+p.head[0])*SPR_K, SPR_KEEL+(SPR_HEAD[1]+p.head[1])*SPR_K+hop, mood, t, f);
