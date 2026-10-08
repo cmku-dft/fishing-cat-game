@@ -5,12 +5,20 @@ const MOOD_SPRITE={calm:'focused', strain:'focused', excited:'excited', shocked:
 const SPR_K=0.95;          // sprite px -> world px
 const SPR_KEEL=34;         // keel sits this far below the boat frame origin (boat.y-14)
 const SPR_HEAD=[14,-128];  // head centre relative to the anchor, sprite px (all five cats share the layout)
-// optional sprite-sheet animations per cat (data/cats.js "anims"): idle, fight, catch, sleepy, shocked
+// optional sprite-sheet animations per cat (data/cats.js "anims"): idle, fight, catch, sleepy, shocked, paddle
+// paddling: rowing with the line reeled in (short grace so the stroke doesn't flicker between taps)
+let rowT=-9;
+function paddling(){
+  if(S.mode!=='play' || hooked || hook.L>20) return false;
+  if(keys.left||keys.right) rowT=t;
+  return t-rowT<.25;
+}
 function animFor(mood){
   const A=CATS[S.cat].anims; if(!A) return null;
   let a=null, t0=0;
   if(mood==='happy' && A.catch && moodOv.m==='happy' && t<moodOv.until){ a=A.catch; t0=moodOv.start||0; }
   else if((mood==='strain'||mood==='excited') && A.fight && hooked && !hooked.def.inert && !hooked.def.trash) a=A.fight;
+  else if(mood==='calm' && A.paddle && paddling()) a=A.paddle;
   else if(mood==='calm' && A.idle) a=A.idle;
   else if(mood==='sleepy' && A.sleepy) a=A.sleepy;
   else if(mood==='shocked' && A.shocked) a=A.shocked;
@@ -21,7 +29,7 @@ function animFor(mood){
 }
 function sprFor(mood){
   const an=animFor(mood);
-  if(an){ const a=an.a, tip=a.rodTips[an.fr]; return {img:a.img,sx:(an.fr%a.cols)*a.w,sy:Math.floor(an.fr/a.cols)*a.h,w:a.w,h:a.h,ax:a.anchor[0],ay:a.anchor[1],tx:tip[0],ty:tip[1],head:a.head||[0,0]}; }
+  if(an){ const a=an.a, tip=a.rodTips[an.fr]; return {anim:a,fr:an.fr,front:a.frontImg,img:a.img,sx:(an.fr%a.cols)*a.w,sy:Math.floor(an.fr/a.cols)*a.h,w:a.w,h:a.h,ax:a.anchor[0],ay:a.anchor[1],tx:tip[0],ty:tip[1],head:a.head||[0,0]}; }
   const p=CATS[S.cat].poses[MOOD_SPRITE[mood]||'focused']; return {img:p.img,sx:0,sy:0,w:p.w,h:p.h,ax:p.anchor[0],ay:p.anchor[1],tx:p.rodTip[0],ty:p.rodTip[1],head:[0,0]};
 }
 // rod tip in the boat frame for a cat facing left
@@ -127,6 +135,8 @@ function render(){
   // particles under water
   for(const p of parts){ if(p.k!=='b') continue; ctx.strokeStyle='rgba(220,245,255,'+(.6*p.life/p.max)+')'; ctx.lineWidth=1; ellipse(ctx,p.x,p.y,p.r,p.r); ctx.stroke(); }
 
+  const rowing=CATS[S.cat].anims&&CATS[S.cat].anims.paddle&&currentMood()==='calm'&&paddling();
+  if(!rowing){
   // fishing line
   ctx.strokeStyle='rgba(250,250,240,.85)'; ctx.lineWidth=1.3; ctx.beginPath(); ctx.moveTo(boat.tipX,boat.tipY);
   const sag=hooked?0:Math.min(40,hook.y*.08+12);
@@ -138,6 +148,7 @@ function render(){
   const bx=AREA.frozen?hook.x:hook.x+(boat.tipX-hook.x)*.12, byy=AREA.frozen?-8:wave(bx,t)-4;
   if(hook.y>20){ ctx.fillStyle='#d8433a'; ellipse(ctx,bx,byy,6,6); ctx.fill(); ctx.fillStyle='#fff'; ctx.fillRect(bx-6,byy-1,12,3); }
 
+  }
   drawSurfaceBack(L,R);
   if(typeof drawRockWalls==='function') drawRockWalls();
   drawBoat();
@@ -206,6 +217,16 @@ function drawDetailedHull(front){
   ctx.restore();
 }
 
+// a few droplets where the blade enters the water (once per stroke)
+let lastPaddleFr=-1;
+function paddleSplash(p,f){
+  const fr = p.anim && p.anim.dips ? p.fr : -1;
+  if(fr!==lastPaddleFr && fr===1 && p.anim.dips[1]){
+    const d=p.anim.dips[1], x=boat.x-f*(d[0]-p.ax)*SPR_K, y=wave(x,t);
+    for(let i=0;i<6;i++) parts.push({x:x+rand(-6,6),y:y,vx:rand(-50,50)-f*30,vy:rand(-140,-60),life:.5,max:.5,r:rand(1.5,2.8),k:'s'});
+  }
+  lastPaddleFr=fr;
+}
 function drawBoat(){
   const f=boat.facing, mood=currentMood(), p=sprFor(mood);
   const sink = S.mode==='over' ? Math.min(26,(t-overT)*22) : 0, shake = S.mode==='over' && t-overT<.6 ? Math.sin(t*70)*3 : 0;
@@ -220,7 +241,10 @@ function drawBoat(){
     ctx.drawImage(p.img, p.sx, p.sy, p.w, p.h, -p.ax*SPR_K, SPR_KEEL-p.ay*SPR_K, p.w*SPR_K, p.h*SPR_K);
   }
   drawDetailedHull(true);
+  // paddle blade in front of the hull, so it dips into the water
+  if(p.front && p.front.complete && p.front.naturalWidth) ctx.drawImage(p.front, p.sx, p.sy, p.w, p.h, -p.ax*SPR_K, SPR_KEEL-p.ay*SPR_K, p.w*SPR_K, p.h*SPR_K);
   ctx.restore();
+  paddleSplash(p,f);
   catFx(ctx, -f*(SPR_HEAD[0]+p.head[0])*SPR_K, SPR_KEEL+(SPR_HEAD[1]+p.head[1])*SPR_K+hop, mood, t, f);
   ctx.restore();
 }

@@ -25,7 +25,7 @@ function unlockedUpTo(){ let i=0; while(i<AREAS.length-1 && areaDone(i)) i++; co
 // ---------- pictures ----------
 function loadImg(src){ const i=new Image(); i.src=withV(src); return i; }
 for(const c of CATS) for(const m in c.poses) c.poses[m].img=loadImg(c.poses[m].image);
-for(const c of CATS) for(const a in (c.anims||{})) c.anims[a].img=loadImg(c.anims[a].image);
+for(const c of CATS) for(const a in (c.anims||{})){ const an=c.anims[a]; an.img=loadImg(an.image); if(an.front) an.frontImg=loadImg(an.front); }
 const squidImgs = FISH_BY_ID.squid.images.map(loadImg);
 // your own creature drawings: add "image" to a creature in data/creatures.js
 for(const f of FISH) if(f.image) f.img=loadImg(f.image);
