@@ -5,7 +5,25 @@ const MOOD_SPRITE={calm:'focused', strain:'focused', excited:'excited', shocked:
 const SPR_K=0.95;          // sprite px -> world px
 const SPR_KEEL=34;         // keel sits this far below the boat frame origin (boat.y-14)
 const SPR_HEAD=[14,-128];  // head centre relative to the anchor, sprite px (all five cats share the layout)
-function sprFor(mood){ const p=CATS[S.cat].poses[MOOD_SPRITE[mood]||'focused']; return {img:p.img,w:p.w,h:p.h,ax:p.anchor[0],ay:p.anchor[1],tx:p.rodTip[0],ty:p.rodTip[1]}; }
+// optional sprite-sheet animations per cat (data/cats.js "anims"): idle, fight, catch, sleepy, shocked
+function animFor(mood){
+  const A=CATS[S.cat].anims; if(!A) return null;
+  let a=null, t0=0;
+  if(mood==='happy' && A.catch && moodOv.m==='happy' && t<moodOv.until){ a=A.catch; t0=moodOv.start||0; }
+  else if((mood==='strain'||mood==='excited') && A.fight && hooked && !hooked.def.inert && !hooked.def.trash) a=A.fight;
+  else if(mood==='calm' && A.idle) a=A.idle;
+  else if(mood==='sleepy' && A.sleepy) a=A.sleepy;
+  else if(mood==='shocked' && A.shocked) a=A.shocked;
+  if(!a || !(a.img && a.img.complete && a.img.naturalWidth)) return null;
+  const n=a.seq?a.seq.length:a.frames, k=Math.floor(Math.max(0,t-t0)*a.fps);
+  const i=a.loop?k%n:Math.min(n-1,k), fr=a.seq?a.seq[i]:i;
+  return {a,fr};
+}
+function sprFor(mood){
+  const an=animFor(mood);
+  if(an){ const a=an.a, tip=a.rodTips[an.fr]; return {img:a.img,sx:(an.fr%a.cols)*a.w,sy:Math.floor(an.fr/a.cols)*a.h,w:a.w,h:a.h,ax:a.anchor[0],ay:a.anchor[1],tx:tip[0],ty:tip[1],head:a.head||[0,0]}; }
+  const p=CATS[S.cat].poses[MOOD_SPRITE[mood]||'focused']; return {img:p.img,sx:0,sy:0,w:p.w,h:p.h,ax:p.anchor[0],ay:p.anchor[1],tx:p.rodTip[0],ty:p.rodTip[1],head:[0,0]};
+}
 // rod tip in the boat frame for a cat facing left
 function sprTip(mood){ const p=sprFor(mood); return [(p.tx-p.ax)*SPR_K, (p.ty-p.ay)*SPR_K+SPR_KEEL]; }
 const INK='#2a1b14';
@@ -25,7 +43,7 @@ function catFx(c,hx,hy,mood,tt,fr){
 
 // ---------- moods ----------
 let moodOv={m:null,until:0}, idleT=0;
-function setMood(m,sec){ moodOv={m,until:t+sec}; }
+function setMood(m,sec){ moodOv={m,until:t+sec,start:t}; }
 function currentMood(){
   if(S.mode==='over') return 'sad';
   if(attack || nearBear()) return 'shocked';
@@ -199,11 +217,11 @@ function drawBoat(){
   ctx.translate(jx+tug, hop);
   drawDetailedHull(false);
   if(p.img.complete && p.img.naturalWidth){
-    ctx.drawImage(p.img, -p.ax*SPR_K, SPR_KEEL-p.ay*SPR_K, p.w*SPR_K, p.h*SPR_K);
+    ctx.drawImage(p.img, p.sx, p.sy, p.w, p.h, -p.ax*SPR_K, SPR_KEEL-p.ay*SPR_K, p.w*SPR_K, p.h*SPR_K);
   }
   drawDetailedHull(true);
   ctx.restore();
-  catFx(ctx, -f*SPR_HEAD[0]*SPR_K, SPR_KEEL+SPR_HEAD[1]*SPR_K+hop, mood, t, f);
+  catFx(ctx, -f*(SPR_HEAD[0]+p.head[0])*SPR_K, SPR_KEEL+(SPR_HEAD[1]+p.head[1])*SPR_K+hop, mood, t, f);
   ctx.restore();
 }
 
