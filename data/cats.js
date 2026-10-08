@@ -1,7 +1,7 @@
 // Whisker Lake · cats. Edit the values below; keep the first line as it is.
 DATA.cats =
 {
- "_about": "The five cats. mods: talent multipliers (reel, tension, boat, notice, rare). poses: the 5 fishing faces; anchor = boat centre and keel, rodTip = end of the rod, both in pixels of the pose picture. anims (optional): sprite-sheet animations that replace a pose: idle (waiting, calm), fight (fish on the line), catch (plays once after a catch), sleepy (no input for 9+ s), shocked (shark, bear, thief, jellyfish). One row of cells w x h; anchor is the same in every cell; rodTips = rod end per frame; seq = optional frame order; head = shift of the mood effects.",
+ "_about": "The five cats. mods: talent multipliers (reel, tension, boat, notice, rare). poses: the 5 fishing faces; anchor = boat centre and keel, rodTip = end of the rod, both in pixels of the pose picture. anims (optional): sprite-sheet animations that replace a pose: idle (waiting, calm), fight (fish on the line), catch (plays once after a catch), sleepy (no input for 9+ s), shocked (shark, bear, thief, jellyfish), paddle (rowing with the line reeled in; rodTips copy the idle rod tip because there is no rod; front = paddle-only overlay drawn in front of the hull, dips = blade tip per frame for splashes). One row of cells w x h; anchor is the same in every cell; rodTips = rod end per frame; seq = optional frame order; head = shift of the mood effects.",
  "items": [
   {
    "id": "sapstar",
@@ -277,6 +277,57 @@ DATA.cats =
      "head": [
       12,
       -8
+     ]
+    },
+    "paddle": {
+     "image": "assets/poses/sapstar_paddle.png",
+     "cols": 4,
+     "frames": 4,
+     "fps": 8.0,
+     "loop": true,
+     "w": 282,
+     "h": 244,
+     "anchor": [
+      140,
+      240
+     ],
+     "rodTips": [
+      [
+       -9.4,
+       81.5
+      ],
+      [
+       -9.4,
+       81.5
+      ],
+      [
+       -9.4,
+       81.5
+      ],
+      [
+       -9.4,
+       81.5
+      ]
+     ],
+     "head": [
+      9,
+      -20
+     ],
+     "front": "assets/poses/sapstar_paddlefront.png",
+     "dips": [
+      [
+       46.8,
+       227
+      ],
+      [
+       121.5,
+       227
+      ],
+      [
+       175.4,
+       227
+      ],
+      null
      ]
     }
    }
@@ -556,6 +607,57 @@ DATA.cats =
       44,
       -3
      ]
+    },
+    "paddle": {
+     "image": "assets/poses/leafpelt_paddle.png",
+     "cols": 4,
+     "frames": 4,
+     "fps": 8.0,
+     "loop": true,
+     "w": 237,
+     "h": 228,
+     "anchor": [
+      142,
+      224
+     ],
+     "rodTips": [
+      [
+       10.8,
+       74.9
+      ],
+      [
+       10.8,
+       74.9
+      ],
+      [
+       10.8,
+       74.9
+      ],
+      [
+       10.8,
+       74.9
+      ]
+     ],
+     "head": [
+      37,
+      -14
+     ],
+     "front": "assets/poses/leafpelt_paddlefront.png",
+     "dips": [
+      [
+       24.4,
+       216
+      ],
+      [
+       131.3,
+       211
+      ],
+      [
+       175.1,
+       211
+      ],
+      null
+     ]
     }
    }
   },
@@ -833,6 +935,57 @@ DATA.cats =
      "head": [
       22,
       -2
+     ]
+    },
+    "paddle": {
+     "image": "assets/poses/haretail_paddle.png",
+     "cols": 4,
+     "frames": 4,
+     "fps": 8.0,
+     "loop": true,
+     "w": 253,
+     "h": 252,
+     "anchor": [
+      145,
+      248
+     ],
+     "rodTips": [
+      [
+       0.8,
+       108.7
+      ],
+      [
+       0.8,
+       108.7
+      ],
+      [
+       0.8,
+       108.7
+      ],
+      [
+       0.8,
+       108.7
+      ]
+     ],
+     "head": [
+      14,
+      -15
+     ],
+     "front": "assets/poses/haretail_paddlefront.png",
+     "dips": [
+      [
+       20.2,
+       242
+      ],
+      [
+       130.6,
+       235
+      ],
+      [
+       169.0,
+       235
+      ],
+      null
      ]
     }
    }
@@ -1112,6 +1265,57 @@ DATA.cats =
       15,
       -15
      ]
+    },
+    "paddle": {
+     "image": "assets/poses/eelfur_paddle.png",
+     "cols": 4,
+     "frames": 4,
+     "fps": 8.0,
+     "loop": true,
+     "w": 287,
+     "h": 256,
+     "anchor": [
+      156,
+      248
+     ],
+     "rodTips": [
+      [
+       -18.0,
+       68.2
+      ],
+      [
+       -18.0,
+       68.2
+      ],
+      [
+       -18.0,
+       68.2
+      ],
+      [
+       -18.0,
+       68.2
+      ]
+     ],
+     "head": [
+      -28,
+      -15
+     ],
+     "front": "assets/poses/eelfur_paddlefront.png",
+     "dips": [
+      [
+       21.7,
+       251
+      ],
+      [
+       149.5,
+       235
+      ],
+      [
+       163.2,
+       235
+      ],
+      null
+     ]
     }
    }
   },
@@ -1389,6 +1593,57 @@ DATA.cats =
      "head": [
       10,
       1
+     ]
+    },
+    "paddle": {
+     "image": "assets/poses/squirrelstripe_paddle.png",
+     "cols": 4,
+     "frames": 4,
+     "fps": 8.0,
+     "loop": true,
+     "w": 260,
+     "h": 260,
+     "anchor": [
+      152,
+      256
+     ],
+     "rodTips": [
+      [
+       8.5,
+       106.5
+      ],
+      [
+       8.5,
+       106.5
+      ],
+      [
+       8.5,
+       106.5
+      ],
+      [
+       8.5,
+       106.5
+      ]
+     ],
+     "head": [
+      10,
+      -18
+     ],
+     "front": "assets/poses/squirrelstripe_paddlefront.png",
+     "dips": [
+      [
+       21.1,
+       250
+      ],
+      [
+       140.0,
+       243
+      ],
+      [
+       178.7,
+       243
+      ],
+      null
      ]
     }
    }
