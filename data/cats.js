@@ -999,7 +999,7 @@ DATA.cats =
    "clan": "RiverClan",
    "rank": "Deputy",
    "perk": "River-born",
-   "perkText": "Fish notice the hook from farther away",
+   "perkText": "Fish notice the hook from farther away · thick mane: never freezes on the ice",
    "mods": {
     "notice": 1.5
    },

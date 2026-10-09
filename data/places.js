@@ -132,8 +132,8 @@ DATA.places =
     44.6
    ],
    "blurb": "A lake frozen solid between the mountains. Smash a hole in the ice to fish.",
-   "help": "hold ↓ to smash a hole in the ice · reel in before you move",
-   "tip": "Hold ↓ (Drop) to smash a hole in the ice, then fish through it.",
+   "help": "hold ↓ to smash a hole in the ice · reel in before you move · don't stand still too long or you'll freeze: row around to warm up",
+   "tip": "Hold ↓ (Drop) to smash a hole in the ice, then fish through it. It's freezing out here: stand still too long and your cat slows down and can pass out. Reel in and row around to warm up. Eelfur's thick mane keeps him warm.",
    "music": "assets/music.mp3"
   },
   {
